@@ -1,0 +1,82 @@
+\documentclass[11pt]{beamer}
+
+%======== 主题框架 ========%
+%\usetheme{Singapore}        % 最简单的整体布局
+\usetheme{Berlin}        % 最简单的整体布局
+\usecolortheme{default}   % 默认配色，后续会被我们覆盖
+% 说明：如需换风格，可试：
+%   \usetheme{Madrid} / \usetheme{Berlin}
+
+%======== 页面尺寸 ========%
+% 默认 128mm x 96mm（4:3），如要 16:9：
+% \geometry{paperwidth=160mm,paperheight=90mm}
+
+%======== 颜色定义 ========%
+% 白底黑字（官方题解常见）
+% \setbeamercolor{background canvas}{bg=white}
+% \setbeamercolor{normal text}     {fg=black}
+% \setbeamercolor{structure}       {fg=black}   % 标题、列表符号
+% \setbeamercolor{frametitle}      {fg=black,bg=white}
+
+% 可选方案①：黑底白字
+% \setbeamercolor{background canvas}{bg=black}
+% \setbeamercolor{normal text}     {fg=white}
+% \setbeamercolor{frametitle}      {fg=white,bg=black}
+
+% 可选方案②：护眼米黄
+% \setbeamercolor{background canvas}{bg=yellow!10!white}
+% \setbeamercolor{normal text}     {fg=black}
+% \setbeamercolor{frametitle}      {fg=black,bg=yellow!20!white}
+
+%======== 页眉页脚 ========%
+\setbeamertemplate{navigation symbols}{} % 去掉底栏图标
+%\setbeamertemplate{footline}[frame number] % 仅保留「页码 / 总页数」
+%\useoutertheme[compress]{miniframes}   % 关闭纵向，横向排列
+\useinnertheme{default}         % 保持其余默认
+%\setbeamercolor{section in head/foot}{fg=black!70,bg=gray!20} % 页眉颜色
+%======== 中文 & 字体 ========%
+\usepackage{ctex}
+\usepackage{amsmath,amssymb}
+\usepackage[scaled=0.85]{sourcecodepro} % 等宽字体，pdflatex 可用
+
+%======== PDF 书签 & 目录 ========%
+\setbeamertemplate{section in toc}[sections numbered]   % 带编号
+\setbeamertemplate{subsection in toc}[subsections numbered]
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks   = true,
+  linkcolor    = white,
+  pdfauthor    = {出题组},
+  pdftitle     = {SHCPC2025 题解},
+  bookmarksopen= true
+}
+
+\title{SHCPC2025 题解}
+\author{出题组}
+\date{2025 年 7 月 5 日}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% 目录页（需两次编译才能看到）
+\begin{frame}{目录}
+  \tableofcontents
+\end{frame}
+
+%--------------- 题目开始 ---------------%
+% ======= 题目 A ======= %
+\section{A  序列}
+\subsection*{}\begin{frame}{A  序列}第一页\end{frame}
+\subsection*{}\begin{frame}{A  序列}第二页\end{frame}
+
+\section{B  审判}
+\subsection*{} \begin{frame}{B  审判}第一页\end{frame}
+\subsection*{} \begin{frame}{B  审判}第二页\end{frame}
+
+\section{C  饺子}
+\subsection*{} \begin{frame}{C  饺子}第一页\end{frame}
+
+\end{document}

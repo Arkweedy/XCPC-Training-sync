@@ -1,0 +1,37 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+using ll = long long;
+
+
+constexpr ll INF = 1e18;
+constexpr int mod = 1e9 + 7;
+constexpr int N = 1e5 + 10;
+
+void solve()
+{
+    int n;cin>>n;
+    map<int,int>ha;
+    int res = 0;
+    for(int i=0;i<(2*n);i++){
+        int x;cin>>x;
+        ha[x]++;
+    }
+    res = 2* n - ha.size()*2;
+    if(res>=0)cout<<"Qingyu\n";
+    else cout<<"Kevin\n";
+}
+
+int main()
+{
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+
+    int t = 1;
+    cin>>t;
+    while(t--){
+        solve();
+    }
+    return 0;
+}

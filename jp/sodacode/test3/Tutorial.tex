@@ -1,0 +1,178 @@
+\documentclass[11pt]{beamer}
+
+%======== 主题框架 ========%
+%\usetheme{Singapore}        % 最简单的整体布局
+\usetheme{Berlin}        % 最简单的整体布局
+\usecolortheme{default}   % 默认配色，后续会被我们覆盖
+
+
+%======== 页眉页脚 ========%
+\setbeamertemplate{navigation symbols}{} % 去掉底栏图标
+%\setbeamertemplate{footline}[frame number] % 仅保留「页码 / 总页数」
+%\useoutertheme[compress]{miniframes}   % 关闭纵向，横向排列
+\useinnertheme{default}         % 保持其余默认
+%\setbeamercolor{section in head/foot}{fg=black!70,bg=gray!20} % 页眉颜色
+%======== 中文 & 字体 ========%
+\usepackage{ctex}
+\usepackage{amsmath,amssymb}
+\usepackage[scaled=0.85]{sourcecodepro} % 等宽字体，pdflatex 可用
+
+%======== PDF 书签 & 目录 ========%
+\setbeamertemplate{section in toc}[sections numbered]   % 带编号
+\setbeamertemplate{subsection in toc}[subsections numbered]
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks   = true,
+  linkcolor    = white,
+  pdfauthor    = {Arkweedy},
+  pdftitle     = {D 题解},
+  bookmarksopen= true
+}
+
+\title{1A班三模 题解}
+\author{Arkweedy}
+\date{2025 年 8 月 2 日}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% 目录页（需两次编译才能看到）
+% \begin{frame}{目录}
+%   \tableofcontents
+% \end{frame}
+
+%--------------- 题目开始 ---------------%
+
+%--------------- 题目开始 ---------------%
+
+%--------------------------------------------------%
+\section{无刻度测量}
+\begin{frame}
+题目大意：\\
+有两个容器，容量分别为 $a$ 升和 $b$ 升，有无限量的水。问能否经过若干次「装满 / 倒空 / 互相倒水」的操作，在某个时刻得到恰好 $c$ 升水。\\
+形式化：给定正整数 $a,b,c$，是否存在整数 $x,y$ 使得 $$ax+by=c$$\\
+范围：$1\le T\le 100,\;1\le a,b,c\le 10^8$。
+\end{frame}
+
+\begin{frame}
+\textbf{裴蜀定理（Bézout's Lemma）}\\
+若 $a,b$ 为正整数，则 $ax+by=c$ 有整数解 $(x,y)$ 当且仅当 $\gcd(a,b)\mid c$。\\
+这告诉我们：$\gcd(a,b)$是$x,y$的最小正线性组合！
+
+\end{frame}
+
+\begin{frame}
+\textbf{算法}\\
+\begin{enumerate}
+  \item 读入 $T$ 组数据。
+  \item 对每组数据，计算 $g=\gcd(a,b)$。
+  \item 若 $g\mid c$ 输出 \texttt{yes}，否则 \texttt{no}。
+\end{enumerate}
+
+\textbf{复杂度}\\
+单次 $\gcd$ 为 $O(\log\min(a,b))$，总复杂度 $O(T\log N)$
+\end{frame}
+
+%--------------------------------------------------%
+\section{迅风的计谋}
+\begin{frame}
+题目大意\\
+两学生参加 $N$ 场考试，迅风原始分数 $a_i$，好友分数 $b_i$。迅风可任意提升若干场考试分数，总提升量 $\text{sum}$ 最小化，使得最终「分数更高的场数」$x>y$。
+\end{frame}
+
+\begin{frame}
+\textbf{转化}\\
+对第 $i$ 场考试，若 $a_i>b_i$ 则不必提升；否则至少需要提升到 $b_i+1$，代价 $\max(0,b_i-a_i+1)$。\\
+令代价数组 $d_i=\max(0,b_i-a_i+1)$。
+\end{frame}
+
+\begin{frame}
+\textbf{贪心思路}\\
+\begin{itemize}
+  \item 先统计原本 $a_i>b_i$ 的场数 $cnt1$,  $a_i>b_i$ 的场数 $cnt2$。
+  \item 若 $cnt1>cnt2$，已满足，\textbf{答案为 0}。
+  \item 否则把剩余考试按 $d_i$ 升序排序，贪心选最小的提升即可。
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\textbf{复杂度}\\
+排序 $O(N\log N)$，其余线性，总复杂度 $O(N\log N)$，$N\le 2\times10^5$ 可过。
+\end{frame}
+
+%--------------------------------------------------%
+\section{不重叠区间的最大选取数}
+\begin{frame}
+题目大意\\
+给定 $n$ 个活动 $(s_i,e_i)$，要求选最多数量的活动，使得任意两个被选活动开始时间间隔 $\ge k$。
+\end{frame}
+
+\begin{frame}
+\textbf{算法}\\
+经典贪心：按结束时间排序。\\
+维护上一次所选活动的结束时间 $last\_end=-\infty$。\\
+扫描所有活动，若 $s_i\ge last\_end+k$ 则选取，并更新 $last\_end=e_i$。
+\end{frame}
+
+\begin{frame}
+\textbf{正确性证明}\\
+按结束时间排序后，每次取最早结束者，留给后续活动最大空间；间隔 $k$ 的限制相当于把结束时间额外增加 $k$，不影响贪心正确性。
+\end{frame}
+
+\begin{frame}
+\textbf{复杂度}\\
+排序 $O(n\log n)$，扫描 $O(n)$，总复杂度 $O(n\log n)$，$n\le 10^5$ 轻松通过。
+\end{frame}
+
+%--------------------------------------------------%
+\section{因数之和}
+\begin{frame}
+题目大意\\
+定义: $$f(x)=\sum_{d\mid x}d$$
+给定 $n$ 组询问 $[l,r]$，统计区间内满足 $f(x)\ge 2x$ 的整数个数。\\
+范围：$n\le 2\times10^5,\;1\le l\le r\le 10^6$。\\
+实际上$f(x)$有个名字，叫因子和函数$\sigma(x)$(欧拉提出定义)，然而，数论中的欧拉函数另有他人($\phi(x)$)
+
+\end{frame}
+
+\begin{frame}
+\textbf{性质}\\
+$\sigma(x)\ge 2x$ 的数称为「盈数」或「过剩数」。\\
+实际上，$\sigma(x) = 2x$的数称为完美数(最早由毕达哥拉斯研究)，截至2018年，相关研究者已经找到51个完全数。\\
+有关奇完美数是否存在，仍然是开放问题。
+\end{frame}
+
+\begin{frame}
+\textbf{算法}\\
+本题区间固定 $[1,10^6]$，可离线预处理。\\
+\begin{enumerate}
+  \item 筛法求 $f(x)$：对每个 $i$ 从 $1$ 到 $10^6$，把 $i$ 加到所有倍数的因数和上。
+  \item 建立前缀数组 $\text{pre}[x]=$ 前 $x$ 个整数中满足 $f(i)\ge 2i$ 的数量。
+  \item 每组询问 $[l,r]$ 回答 $\text{pre}[r]-\text{pre}[l-1]$。
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\textbf{复杂度}\\
+筛法 $O(N \log N)$，可轻松通过。
+\end{frame}
+
+\begin{frame}
+扩展：$\sigma(x)$存在线性筛法。\\
+今天我们讲一下欧拉筛的进阶。
+\end{frame}
+
+\begin{frame}
+欧拉筛的进阶：
+欧拉筛可以筛绝大多数$\textbf{积性函数}$
+\end{frame}
+
+\end{document}
+
+
+
+
+\end{document}

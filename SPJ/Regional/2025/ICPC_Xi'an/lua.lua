@@ -1,0 +1,12 @@
+pandoc "D:\MyBlogs\Hexo\source\_posts\生活\随笔\2023.5.29.md" `
+  --from=markdown+tex_math_dollars+tex_math_double_backslash+raw_tex `
+  --pdf-engine=xelatex `
+  --template "D:\MyBlogs\pandoc-xcpc-win-safe.tex" `
+  --lua-filter "D:\MyBlogs\rewrite-images.lua" `
+  -V mainfont="Times New Roman" `
+  -V CJKmainfont="Microsoft YaHei" `
+  -V monofont="Consolas" `
+  -V listings=true -V geometry=a4paper,margin=20mm `
+  --resource-path="D:\MyBlogs\Hexo\source;D:\MyBlogs\Hexo\source\_posts" `
+  --highlight-style=tango `
+  -o "D:\MyBlogs\PDF\_test.pdf"

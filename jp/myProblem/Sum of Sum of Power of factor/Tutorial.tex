@@ -1,0 +1,178 @@
+\documentclass[11pt]{beamer}
+
+%======== 主题框架 ========%
+%\usetheme{Singapore}        % 最简单的整体布局
+\usetheme{Berlin}        % 最简单的整体布局
+\usecolortheme{default}   % 默认配色，后续会被我们覆盖
+
+
+%======== 页眉页脚 ========%
+\setbeamertemplate{navigation symbols}{} % 去掉底栏图标
+%\setbeamertemplate{footline}[frame number] % 仅保留「页码 / 总页数」
+%\useoutertheme[compress]{miniframes}   % 关闭纵向，横向排列
+\useinnertheme{default}         % 保持其余默认
+%\setbeamercolor{section in head/foot}{fg=black!70,bg=gray!20} % 页眉颜色
+%======== 中文 & 字体 ========%
+\usepackage{ctex}
+\usepackage{amsmath,amssymb}
+\usepackage[scaled=0.85]{sourcecodepro} % 等宽字体，pdflatex 可用
+
+%======== PDF 书签 & 目录 ========%
+\setbeamertemplate{section in toc}[sections numbered]   % 带编号
+\setbeamertemplate{subsection in toc}[subsections numbered]
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks   = true,
+  linkcolor    = white,
+  pdfauthor    = {Arkweedy},
+  pdftitle     = {D 题解},
+  bookmarksopen= true
+}
+
+\title{Yohane的堕天因子秘仪 题解}
+\author{Arkweedy}
+\date{2025 年 7 月 30 日}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% 目录页（需两次编译才能看到）
+% \begin{frame}{目录}
+%   \tableofcontents
+% \end{frame}
+
+%--------------- 题目开始 ---------------%
+
+\section{题目大意}
+\begin{frame}
+定义 $f(n) = \sum_{d | n}d^k \bmod P$ , $P = 10^9 + 7$ ,求:\\
+$$\sum_{x = 1}^N f(x) \bmod P$$
+难度分级:\\
+\begin{enumerate}
+    \item $N \leq 100, k = 3$ %N^2 k
+    \item $N \leq 10^5, k \leq 10^9$ %N sqrtN logk
+    \item $N \leq 5\times 10^5, k \leq 10^9$ %N sqrtN + N log k
+    \item $N \leq 2\times 10^6, k \leq 10^9$ %N log N + N log k
+\end{enumerate}
+\end{frame}
+
+\section{初步分析}
+\begin{frame}
+拆分问题:\\
+计算公式中的各个部分: $d$ 怎么找? $d^k$怎么算? \\
+以及，我们要找$1 \sim N$中每个数的因子，有没有更好的办法？\\
+\begin{enumerate}
+    \item $d$ —— 筛因子 (怎么筛更好？)
+    \item $d^k$ —— 快速幂  
+\end{enumerate}
+\end{frame}
+
+\section{观察数据范围}
+\begin{frame}
+根据数据范围，猜测一下做法：
+\begin{enumerate}
+    \item $N \leq 100, k = 3, O(Force!!)$  %N^2 k
+    \item $N \leq 10^5, k \leq 10^9, O(N\sqrt N \log k) ?$ %N sqrtN logk
+    \item $N \leq 5\times 10^5, k \leq 10^9, O(N\sqrt N )?O( N \log k )?$ %N sqrtN + N log k
+    \item $N \leq 2\times 10^6, k \leq 10^9, O(N \log N + N \log k)?$ %N log N + N log k
+\end{enumerate}
+想一想我们要做到我们前面分解的任务，每个部分应该怎么办？
+\end{frame}
+
+\section{范围1}
+\begin{frame}
+$N \leq 100, k = 3$ \\
+暴力跑即可。(应该不会有人不会吧)
+\end{frame}
+
+\section{范围2}
+\begin{frame}
+$N \leq 10^5, k \leq 10^9$
+这里需要用到快速幂了。\\
+对每个数$O(\sqrt N)$筛出因子。\\
+对于每个因子$O(\log k)$计算快速幂即可。\\
+思考：总时间复杂度怎么算？
+\end{frame}
+
+\section{范围3}
+\begin{frame}
+$N \leq 5\times 10^5, k \leq 10^9$\\
+如果我们还是对每个因子计算快速幂，会tle。\\
+先进行复杂度分析：\\
+还是$O(N \sqrt{N})$筛因子,$N = 5\times 10^5$应该没问题\\
+但是我们还对每个因子计算了快速幂！\\
+$1 \sim N$总因子数分析：考虑每个因子$d$出现了多少次？ $\frac{N}{d}$ 次！(想想为什么？)\\
+$$\sum_{i = 1}^N \frac{N}{i} \sim N \log N \quad \text{(知识点：调和级数求和)}$$ \\
+所以复杂度是 $O(N \sqrt{N} + N\log N\log k)$，不容易通过！
+\end{frame}
+
+\section{范围3}
+\begin{frame}
+$N \leq 5\times 10^5, k \leq 10^9$\\
+想到预处理的思想： 我们预先计算每个数的快速幂，遇到了直接查表即可。\\
+改进后复杂度：$O(N \sqrt{N} + N\log N)$，可以通过该测试集。\\
+\end{frame}
+
+\section{范围4}
+\begin{frame}
+$N \leq 2\times 10^6, k \leq 10^9$\\
+现在的复杂度瓶颈在筛因子上，$O(\sqrt N)$太慢了！\\
+怎么筛因子更好呢？\\
+请联系我们前面数因子数的复杂度分析思考\\
+\end{frame}
+
+\section{范围4}
+\begin{frame}
+$N \leq 2\times 10^6, k \leq 10^9$\\
+前面我们计算因子的出现次数，是考虑每个数作为因子，仅在它的倍数处\\
+所以$d$，作为因子，出现在$d, 2d, 3d, ..., \lfloor\frac{N}{d}\rfloor \cdot d$处，一共 $\lfloor\frac{N}{d}\rfloor$次\\
+所以我们只需要枚举每个数的倍数，在倍数处加入这个数作为因子的贡献即可。\\
+枚举因子的时间复杂度：$O(N \log N)$,预处理每个数的$k$ 次幂的时间复杂度：$O(N \log k)$
+\end{frame}
+
+\section{额外的思考}
+\begin{frame}
+如果 $N \leq 10^7$
+\begin{enumerate}
+    \item 怎么更快计算$1 \sim N$ 的$k$ 次幂？
+    \item 怎么得到$f(1) \sim f(N)$的所有点值？
+    \item 如果只需要计算$\sum_{x = 1}^N f(x)$,有没有更快的方法？
+    \item 如果有更快的方法，可不可以回答多次询问？$q \leq 5000$
+\end{enumerate}
+\end{frame}
+
+\section{额外的思考}
+\begin{frame}
+如果 $N \leq 10^7$
+\begin{enumerate}
+    \item 怎么更快计算$1 \sim N$ 的$k$ 次幂？\\
+        有$O(n)$的做法(这个复杂度像我们数论学过的什么算法？能不能联系一下？)
+    \item 怎么得到$f(1)\sim f(N)$的所有点值？\\
+        有$O(n \log \log n)$复杂度的方法(这个复杂度像什么？能不能联想一下怎么实现？)
+    \item 如果只需要计算$\sum_{x = 1}^N f(x)$,有没有更快的方法？\\
+        预处理后，有$O(N)$ 或 $O(\sqrt N)$的做法
+    \item 如果有更快的方法，可不可以回答多次询问？$q \leq 5000$\\
+        如果会$O(\sqrt N)$的方法，就可以$O(q\sqrt N)$回答多次询问！
+\end{enumerate}
+\end{frame}
+
+\section{额外的思考}
+\begin{frame}
+如果 $N \leq 10^7$
+\begin{enumerate}
+    \item 怎么更快计算$1 \sim N$ 的$k$ 次幂？\\
+        欧拉筛筛自然数的$k$次幂。(欧拉函数可以筛几乎所有积性函数，幂函数是积性函数)
+    \item 怎么得到$f(1)\sim f(N)$的所有点值？\\
+        使用埃氏筛的延申——狄利克雷前缀和
+    \item 如果只需要计算$\sum_{x = 1}^N f(x)$,有没有更快的方法？\\
+        计算每个因子的出现次数，乘上它的$k$次幂即可$O(n)$计算\\
+        进一步地，发现很多因子的出现次数相同，所以可以一起处理。对$k$次幂做前缀和，对$\lfloor\frac{N}{k}\rfloor$整除分块即可做到$O(\sqrt N)$
+    \item 如果有更快的方法，可不可以回答多次询问？$q \leq 5000$\\
+        如果会$O(\sqrt N)$的方法，就可以$O(q\sqrt N)$回答多次询问！
+\end{enumerate}
+\end{frame}
+
+\end{document}
