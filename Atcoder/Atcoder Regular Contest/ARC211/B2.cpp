@@ -10,40 +10,51 @@ using namespace std;
 
 void solve()
 {
-    int x, y, z;
-    cin >> x >> y >> z;
-    vector<int>a,b,c;
-    int ma = max({x, y, z}), mi = min({x,y,z});
-    int cnt1 = 0;
-    if(x == ma)cnt1++;
-    if(y == ma)cnt1++;
-    if(z == ma)cnt1++;
-    int cnt2 = 0;
-    if(x == mi)cnt2++;
-    if(y == mi)cnt2++;
-    if(z == mi)cnt2++;
+    array<int,3>a,id;
+    cin >> a[0] >> a[1] >> a[2];
+    iota(id.begin(),id.end(), 0);
+    sort(id.begin(),id.end(), [&](int i, int j)->bool
+    {
+        return a[i] < a[j];        
+    });
+    array<int,3>rk;
+    for(int i = 0;i < 3;i++){
+        rk[id[i]] = i;
+    }
+    array<vector<int>, 3>ans;
+    int c0 = a[id[0]], c1 = a[id[1]], c2 = a[id[2]];
+    if(c0 == c1){//0
+        ans[0].resize(c0, 0);
+        ans[1].resize(c2, 0);
+        ans[2].resize(c2, 0);
+    }
+    else {//01
+        //000001|111111
+        //000001|000000
+        //111111|000000
+        for(int i = 0;i < c0 - 1;i++){
+            ans[0].push_back(0);
+            ans[1].push_back(0);
+        }
+        ans[1].push_back(1);
+        for(int i = 0;i < c1;i++){
+            ans[0].push_back(1);
+            ans[2].push_back(1);
+        }
+        for(int i = 0;i < c2 - 1;i++){
+            ans[1].push_back(0);
+            ans[2].push_back(0);
+        }
+    }
 
-    if(cnt2 == 3 || cnt2 == 2){
-        a.resize(max(x, y), 0);
-        b.resize(max(x, z), 0);
-        c.resize(max(y, z), 0);
+    for(int i = 0;i < 3;i++){
+        cout << ans[rk[i]].size() << " ";
+        for(int j = 0;j < ans[rk[i]].size();j++){
+            cout << ans[rk[i]][j] << " ";
+        }
+        cout << endl;
     }
-    else{//01
-        for(int i = 0;i < x - 1;i++){
-            a.push_back(0);
-            b.push_back(0);
-        }
-        for(int i = 0;i < y;i++){
-            a.push_back(1);
-            c.push_back(1);
-        }
-        b.push_back(1);
-        for(int i = 0;i < z - 1;i++){
-            b.push_back(0);
-            c.push_back(0);
-        }
-        
-    }
+    return;
     
 }
 
@@ -52,7 +63,7 @@ int main()
     std::ios::sync_with_stdio(0);
     std::cin.tie(0);
     int tt = 1;
-    cin >> tt;
+    //cin >> tt;
     while(tt--){
         solve();
     }
