@@ -67,7 +67,7 @@ void solve()
     {
         if(l > r)return 0;
         if(k == -1)return 0;
-        int m = l;
+        int m = l - 1;
         for(int i = l;i <= r;i++){
             if((a[i] >> k) & 1)break;
             m = i;
