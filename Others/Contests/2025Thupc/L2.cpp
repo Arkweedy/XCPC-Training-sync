@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-
+#define int long long
 #define ll long long
 using namespace std;
 std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
@@ -73,7 +73,7 @@ void solve() {
             if (c) {
                 b--;
                 int x = a * r + 1;
-                int y = x + c - 1;
+                int y = l + x + c - 1;
                 ll inv = qmi(l + c, mod - 2);
                 res = (res + (s[y] - s[x - 1] + mod) % mod *
                                  (s[y] - s[x - 1] + mod) % mod * inv % mod *
@@ -88,7 +88,7 @@ void solve() {
     }
 }
 
-int main() {
+signed main() {
     ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
     int t = 1;
     while (t--) solve();
