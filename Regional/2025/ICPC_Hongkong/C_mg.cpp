@@ -261,7 +261,7 @@ void solve()
         }
     }
     vector<Poly> pre(n,Poly(n));
-    auto  qp=[&](Poly a,int b)->Poly
+    auto qp=[&](Poly a,int b)->Poly
     {
         Poly ans={1};
         while(b)

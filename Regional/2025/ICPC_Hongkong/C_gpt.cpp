@@ -28,7 +28,6 @@ void solve(){
         s += a[i];
     }
 
-    // ========= 你原来的“组合数大段”基本照搬，只把 N=1e7 改成精确上界 need = n+s =========
     int need = 1e7;
     vector<int>fac(need + 1), invfac(need + 1);
     fac[0] = 1;

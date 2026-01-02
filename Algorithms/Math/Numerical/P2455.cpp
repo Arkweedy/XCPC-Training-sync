@@ -6,9 +6,7 @@ using ull = unsigned long long;
 
 using namespace std;
 
-//Create time: 2025.12.25 01:17:06
-
-
+//P2455.cpp Create time : 2026.01.02 11:38
 
 void solve()
 {
@@ -23,6 +21,13 @@ void solve()
         }
     }
     constexpr double eps = 1e-7;
+
+    auto z = [&](double x)->bool
+    {
+        return abs(x) <= eps;
+    };
+
+    //REF row echelon form
     for(int i = 0;i < n;i++){
         if(a[i][i] == 0 || abs(a[i][i]) <= eps){
             for(int j = i + 1;j < n;j++){
@@ -42,6 +47,34 @@ void solve()
         }
     }
 
+    
+
+    vector<double>ans(n, -1);
+    int ok = 1;
+    for(int i = n - 1;i >= 0;i--){
+        int p = -1;
+        for(int j = i;j < n;j++){
+            if(!z(a[i][j])){
+                p = j;
+            }
+        }
+        if(p != -1){
+            ans[p] = a[i][n] / a[i][p];
+            for(int j = 0;j < i;j++){
+                a[j][n] -= a[j][p] * ans[p];
+                a[j][p] = 0;
+            }
+        }
+        else if(!z(a[i][n])){
+            ok = -1;
+        }
+        else{
+            ok = min(ok, 0);
+        }
+    }
+
+    // cerr <<"ok = " << ok << endl; 
+
     // for(int i = 0;i < n;i++){
     //     for(int j = 0;j <= n;j++){
     //         cerr << a[i][j] << " ";
@@ -49,27 +82,13 @@ void solve()
     //     cerr << endl;
     // }
 
-    vector<double>ans(n);
-    int ok = 1;
-    for(int i = n - 1;i >= 0;i--){
-        if(a[i][i] == 0 || abs(a[i][i]) <= eps){
-            ok = 0;
-            break;
-        }
-        ans[i] = a[i][n] / a[i][i];
-        for(int j = 0;j < i;j++){
-            a[j][n] -= a[j][i] * ans[i];
-            a[j][i] = 0;
-        }
-    }
-
-    if(ok){
+    if(ok == 1){
         for(int i = 0;i < n;i++){
-            cout << fixed << setprecision(7) << ans[i] << endl;
+            cout << "x" << i << "=" << fixed << setprecision(7) << ans[i] << endl;
         }
     }
     else{
-        cout << "No Solution" << endl;
+        cout << ok << endl;
     }
     return;
 }

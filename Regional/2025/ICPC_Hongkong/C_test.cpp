@@ -62,21 +62,23 @@ void solve()
     i64 res1 = 0;
     for(int i = 0;i < n;i++){
         if(s - i <= n * (n - i - 1)){
+            //cerr << "in, i = " << i << endl;
             int k = (s - i) / (n - i);
             i64 ss = 0;
+            //cerr << k << endl;
             for(int j = 0;j <= k;j++){
                 i64 x = (j % 2 == 0 ? 1 : P-1);
                 x = x * binom(n, j) % P;
                 x = x * binom(n + s - i - j * (n - i) - 1, n - 1) % P;
                 ss = (ss + x + P) % P;
+                //cerr << x << endl;
             }
+            //cerr << ss << endl;
             res1 += ss;
         }
     }
     ans -= res1;
     ans = (ans % P + P) % P;
-
-    cerr << ans << endl;
 
     int ill = 1;
     for(int i = 0;i < n;i++){
@@ -85,18 +87,17 @@ void solve()
         }
     }
     if(ill){
-        s = n;
-        vector<int>f(s + 1);
+        vector<int>f(n + 1);
         f[0] = 1;
         auto mul = [&](int k)->void
         {
-            for(int i = s;i >= k;i--){
+            for(int i = n;i >= k;i--){
                 f[i] = (f[i] - f[i - k] + P) % P;
             }
         };
         auto div = [&](int k)->void
         {
-            for(int i = k;i <= s;i++){
+            for(int i = k;i <= n;i++){
                 f[i] = (f[i] + f[i - k]) % P;
             }
         };
@@ -105,11 +106,11 @@ void solve()
             div(1);
             mul(k + 1);
         };
-        // auto Div = [&](int k)->void
-        // {
-        //     div(k + 1);
-        //     mul(1);
-        // };
+        auto Div = [&](int k)->void
+        {
+            div(k + 1);
+            mul(1);
+        };
         auto Upt = [&](int k)->void
         {
             div(k + 1);
@@ -133,9 +134,8 @@ void solve()
             ans = (ans + f[i - use]) % P;
         }
         out:
-
     }
-    ans = (ans % P + P) % P;
+
     cout << ans << endl;
     return;
     
