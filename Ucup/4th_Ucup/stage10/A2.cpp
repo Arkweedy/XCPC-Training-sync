@@ -10,13 +10,15 @@ using namespace std;
 
 int add(int id){
     cout<<"+ "<<id + 1<<endl;
-    int res;cin>>res;
+    int res;
+    cin>>res;
     return res;
 }
 
 int sub(){
     cout<<"-"<<endl;
-    int res;cin>>res;
+    int res;
+    cin>>res;
     return res;
 }
 
@@ -144,20 +146,22 @@ void solve()
     vector<int>xx(n);
     iota(xx.begin(),xx.end(), 0);
     cdq(cdq, xx);
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 
     int ans=0;
     for(int i=0;i<n;i++) ve[find(i)].push_back(i);
-    for(int i=0;i<n;i++)
+    for(int i=0;i<n;i++){
         if(ve[i].size()) ans++;
+    }
     cout<<"! "<<ans<<endl;
-    for(int i=0;i<n;i++)
-        if(ve[i].size())
-        {
+    for(int i=0;i<n;i++){
+        if(ve[i].size()){
             cout<<ve[i].size()<<' ';
             for(auto p:ve[i]) cout<<p + 1<<' ';
             cout<<endl;
         }
+    }
+    return;
 }
 
 int main()

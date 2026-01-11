@@ -27,69 +27,64 @@ void solve()
         return abs(x) <= eps;
     };
 
-    //REF row echelon form
-    for(int i = 0;i < n;i++){
-        if(a[i][i] == 0 || abs(a[i][i]) <= eps){
-            for(int j = i + 1;j < n;j++){
-                if(a[j][i] != 0 && abs(a[j][i]) >= eps){
-                    swap(a[i], a[j]);
-                    break;
+    //REF
+    int r = 0;
+    for(int i = 0; i < n; i++){
+        //find 
+        for(int j = r;j < n;j++){
+            if(!z(a[j][i])){
+                swap(a[r], a[j]);
+            }
+        }
+        if(z(a[r][i]))continue; // col i all 0
+        for(int j = 0;j < n;j++){
+            if(j != r){
+                double c = a[j][i] / a[r][i];
+                for(int k = 0;k <= n;k++){
+                    a[j][k] -= a[r][k] * c;
                 }
             }
         }
-        if(a[i][i] != 0){
-            for(int j = i + 1;j < n;j++){
-                double c = a[j][i] / a[i][i];
-                for(int k = i; k <= n; k++){
-                    a[j][k] -= c * a[i][k];
-                }
-            }
-        }
+        r++;
     }
-
-    
 
     vector<double>ans(n, -1);
-    int ok = 1;
-    for(int i = n - 1;i >= 0;i--){
+    int multi = 0, none = 0;
+    for(int i = 0;i < n;i++){
+        int all0 = 1;
         int p = -1;
-        for(int j = i;j < n;j++){
+        for(int j = 0;j < n;j++){
             if(!z(a[i][j])){
-                p = j;
+                all0 = 0;
+                 p = j;
+                break;
             }
         }
-        if(p != -1){
-            ans[p] = a[i][n] / a[i][p];
-            for(int j = 0;j < i;j++){
-                a[j][n] -= a[j][p] * ans[p];
-                a[j][p] = 0;
-            }
-        }
-        else if(!z(a[i][n])){
-            ok = -1;
+        if(all0){
+            if(z(a[i][n]))multi = 1;
+            else none = 1;
         }
         else{
-            ok = min(ok, 0);
+            ans[p] = a[i][n] / a[i][p];
+            for(int j = p + 1;j < n;j++){
+                if(!z(a[i][j]))ans[i] = 0;
+            }
         }
     }
 
-    // cerr <<"ok = " << ok << endl; 
-
-    // for(int i = 0;i < n;i++){
-    //     for(int j = 0;j <= n;j++){
-    //         cerr << a[i][j] << " ";
-    //     }
-    //     cerr << endl;
-    // }
-
-    if(ok == 1){
-        for(int i = 0;i < n;i++){
-            cout << "x" << i << "=" << fixed << setprecision(7) << ans[i] << endl;
-        }
+    if(none){
+        cout << -1 << endl;
+    }
+    else if(multi){
+        cout << 0 << endl;
     }
     else{
-        cout << ok << endl;
+        cout << fixed << setprecision(7);
+        for(int i = 0;i < n;i++){
+            cout << "x" << i + 1 << "=" << ans[i] << endl;
+        }
     }
+
     return;
 }
 
