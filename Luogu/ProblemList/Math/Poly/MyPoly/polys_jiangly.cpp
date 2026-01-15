@@ -6,7 +6,6 @@ using ull = unsigned long long;
 
 using namespace std;
 
-using i64 = long long;
 using u64 = unsigned long long;
 using u32 = unsigned;
  
@@ -378,19 +377,6 @@ struct Poly : public std::vector<MInt<P>> {
         auto f = shift(-i) * v.inv();
         return (f.log(m - i * k) * k).exp(m - i * k).shift(i * k) * power(v, k);
     }
-    constexpr Poly pow(int k, int kmodphiP,int big, int m) const {
-        int i = 0;
-        while (i < this->size() && (*this)[i] == 0) {
-            i++;
-        }
-        if (i == this->size() || 1LL * i * k >= m) {
-            return Poly(m);
-        }
-        if(big && i > 0)return Poly(m);
-        int v = (*this)[i];
-        auto f = shift(-i) * power(v, P - 2);
-        return ((f.log(m - i * k) * k).exp(m - i * k).shift(i * k)) * power(v, kmodphiP);
-    }
     constexpr Poly sqrt(int m) const {
         Poly x{1};
         int k = 1;
@@ -507,59 +493,29 @@ MInt<P> linearRecurrence(Poly<P> p, Poly<P> q, i64 n) {
     }
     return p[0] / q[0];
 }
- 
-struct Comb {
-    int n;
-    std::vector<Z> _fac;
-    std::vector<Z> _invfac;
-    std::vector<Z> _inv;
-     
-    Comb() : n{0}, _fac{1}, _invfac{1}, _inv{0} {}
-    Comb(int n) : Comb() {
-        init(n);
-    }
-     
-    void init(int m) {
-        if (m <= n) return;
-        _fac.resize(m + 1);
-        _invfac.resize(m + 1);
-        _inv.resize(m + 1);
-         
-        for (int i = n + 1; i <= m; i++) {
-            _fac[i] = _fac[i - 1] * i;
-        }
-        _invfac[m] = _fac[m].inv();
-        for (int i = m; i > n; i--) {
-            _invfac[i - 1] = _invfac[i] * i;
-            _inv[i] = _invfac[i] * _fac[i - 1];
-        }
-        n = m;
-    }
-     
-    Z fac(int m) {
-        if (m > n) init(2 * m);
-        return _fac[m];
-    }
-    Z invfac(int m) {
-        if (m > n) init(2 * m);
-        return _invfac[m];
-    }
-    Z inv(int m) {
-        if (m > n) init(2 * m);
-        return _inv[m];
-    }
-    Z binom(int n, int m) {
-        if (n < m || m < 0) return 0;
-        return fac(n) * invfac(m) * invfac(n - m);
-    }
-} comb;
 
 using poly = Poly<P>;
 
 
 void solve()
 {
-    
+    int n, m;
+    cin >> n >> m;
+    poly f(n + 1);
+    for(int i = 0;i <= n;i++){
+        cin >> f[i];
+    }
+    vector<Z>x(m);
+    for(int i = 0;i < m;i++){
+        cin >> x[i];
+    }
+    //cerr << x.size() << endl;
+    auto g = f.eval(x);
+    for(int i = 0;i < m;i++){
+        cout << g[i] << "\n";
+    }
+    cout << endl;
+    return;
 }
 
 int main()

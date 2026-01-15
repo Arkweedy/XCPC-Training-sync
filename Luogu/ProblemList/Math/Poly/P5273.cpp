@@ -378,7 +378,7 @@ struct Poly : public std::vector<MInt<P>> {
         auto f = shift(-i) * v.inv();
         return (f.log(m - i * k) * k).exp(m - i * k).shift(i * k) * power(v, k);
     }
-    constexpr Poly pow(int k, int kmodphiP,int big, int m) const {
+    constexpr Poly pow(int k, int kmphi, int m) const {
         int i = 0;
         while (i < this->size() && (*this)[i] == 0) {
             i++;
@@ -386,10 +386,9 @@ struct Poly : public std::vector<MInt<P>> {
         if (i == this->size() || 1LL * i * k >= m) {
             return Poly(m);
         }
-        if(big && i > 0)return Poly(m);
-        int v = (*this)[i];
-        auto f = shift(-i) * power(v, P - 2);
-        return ((f.log(m - i * k) * k).exp(m - i * k).shift(i * k)) * power(v, kmodphiP);
+        Value v = (*this)[i];
+        auto f = shift(-i) * v.inv();
+        return (f.log(m - i * k) * k).exp(m - i * k).shift(i * k) * power(v, kmphi);
     }
     constexpr Poly sqrt(int m) const {
         Poly x{1};
@@ -559,7 +558,30 @@ using poly = Poly<P>;
 
 void solve()
 {
-    
+    int n;
+    i64 k = 0;
+    i64 k2 = 0;
+    cin >> n;
+    string s;
+    cin >> s;
+    for(int i = 0;i < s.length();i++){
+        k *= 10;
+        k += s[i] - '0';
+        k %= P;
+        k2 *= 10;
+        k2 += s[i] - '0';
+        k2 %= (P - 1);
+    }
+    poly f(n);
+    for(int i = 0;i < n;i++){
+        cin >> f[i];
+    }
+    auto g = f.pow(k, k2, n);
+    for(int i = 0;i < n;i++){
+        cout << g[i] << " ";
+    }
+    cout << endl;
+    return;
 }
 
 int main()
