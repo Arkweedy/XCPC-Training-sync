@@ -1,0 +1,37 @@
+#include<bits/stdc++.h>
+using i64 = long long;
+using ll = long long;
+using uint = unsigned int;
+using ull = unsigned long long;
+
+using namespace std;
+
+//Create time: 2026.01.20 10:35:36
+
+void solve()
+{
+    i64 n, m;
+    cin >> n >> m;
+    if(n >= 62){
+        cout << "Ana" << "\n";
+    }
+    else if((1ull << n) >= m + 1){
+        cout << "Ana" << "\n";
+    }
+    else{
+        cout <<"Bob" << "\n";
+    }
+    return;
+}
+
+int main()
+{
+    std::ios::sync_with_stdio(0);
+    std::cin.tie(0);
+    int tt = 1;
+    cin >> tt;
+    while(tt--){
+        solve();
+    }
+    return 0;
+}
