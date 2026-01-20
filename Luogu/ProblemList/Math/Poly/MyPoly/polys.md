@@ -180,6 +180,24 @@ $$A^R(x) = Q^R(x) B^R(x) \mod x^{n - m + 1}\\
 Q^R(x) = \frac{A^R(x)}{B^R(x)} \mod x^{n - m + 1}$$
 于是通过一次多项式求逆和多项式乘法就可以算出$Q(x)$，而知道$Q(x)$后，$R(x)$就很容易计算了。
 
+## 多项式多点求值 `eval(vector<int>x)`
+
+## 多项式快速插值 `lagrange(vector<int>x, vector<int>y)`
+
+## 常系数齐次线性递推 
+### Kitamasa/Fiduccia 算法 `kitamasa(vector<int>a, vector<int>c, i64 n)`
+
+### 表示为有理函数 + Bostan–Mori 算法 `bostanMori(poly p, poly q, poly n)` `linearRecurrence(poly a, poly c, i64 n)`
+
+## 最小多项式 Berlekamp Massey算法  `berlekampMassey`
+$S(x) = P(x) + d x^n + ... \pmod {C(x)}$
+
+## 多项式复合 `comp(poly g, int m)`
+$h(x) = f(g(x)) \equiv [y^{m - 1}] \frac{y^{m - 1}f(y^{-1})}{1 - yg(x)} \pmod {x^m}$
+
+## 多项式复合逆 `revert(int m)`
+
+
 # Todo:
 1. 多项式多点求值
 2. 多项式快速插值

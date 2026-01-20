@@ -143,8 +143,7 @@ public:
             res[i] = a[i];
         }
         for (int i = 0; i < b.size(); i++) {
-            res[i] = res[i] + b[i];
-            if(res[i] >= P)res[i] -= P;
+            res[i] = (res[i] + b[i]) % P;
         }
         return res;
     }
@@ -154,15 +153,15 @@ public:
             res[i] = a[i];
         }
         for (int i = 0; i < b.size(); i++) {
-            res[i] = res[i] - b[i];
-            if(res[i] < 0)res[i] += P;
+            res[i] = (res[i] - b[i] + P) % P;
         }
         return res;
     }
     constexpr friend poly operator-(const poly &a) {
         std::vector<int> res(a.size());
         for (int i = 0; i < int(res.size()); i++) {
-            res[i] = a[i] ? P - a[i] : 0;
+            res[i] = P - a[i];
+            if(res[i] == P)res[i] = 0;
         }
         return poly(res);
     }
@@ -181,7 +180,6 @@ public:
         return a;
     }
     constexpr friend poly operator/(poly a, int b) {
-        b = (b % P + P) % P;
         int invb = power(b, P - 2);
         for (int i = 0; i < int(a.size()); i++) {
             a[i] = 1ll * a[i] * invb % P;
@@ -524,75 +522,6 @@ constexpr poly lagrange(vector<int>x, vector<int>y)
     return work(work, 0, n - 1, 1);
 }
 
-constexpr vector<int> cshift(vector<int>v, int c) //continue val shift
-{
-    int n = v.size() - 1;
-    poly a(n + 1),b(n * 2 + 1);
-    //fac, invfac
-    vector<int>fac(n + 1), invfac(n + 1);
-    vector<int>cfac(n * 2 + 2), invcfac(n + 1); // base c - n - 1
-    int cbase = c - n - 1;
-    cfac[0] = fac[0] = 1;
-    for(int i = 1;i <= n;i++){
-        fac[i] = 1ll * fac[i - 1] * i % P;
-    }
-    invfac[n] = inv(fac[n]);
-    for(int i = n - 1;i >= 0;i--){
-        invfac[i] = 1ll * invfac[i + 1] * (i + 1) % P;
-    }
-
-    for(int i = 1;i <= n * 2 + 1;i++){
-        cfac[i] = 1ll * cfac[i - 1] * (i + cbase) % P;
-    }
-    invcfac[n] = inv(cfac[n]);
-    for(int i = n - 1;i >= 0;i--){
-        invcfac[i] = 1ll * invcfac[i + 1] * (i + 1 + cbase) % P;
-    }
-
-    for(int i = 0;i <= n;i++){
-        a[i] = 1ll * v[i] * invfac[i] % P * invfac[n - i] % P;
-        if((n - i) % 2 == 1)a[i] = a[i] ? P - a[i] : 0;
-    }
-    for(int i = 0;i <= n * 2;i++){
-        b[i] = inv(c - n + i);
-    }
-    auto h = a * b;
-    vector<int>vc(n + 1);
-    for(int i = 0;i <= n;i++){
-        vc[i] = 1ll * h[i + n] * cfac[n + i + 1] % P * invcfac[i] % P;
-    }
-    return vc;
-}
-
-constexpr poly trans(poly& f, int c)
-{
-    int n = f.size();
-    poly a(n), b(n * 2 - 1);
-    vector<int>fac(n + 1), invfac(n + 1);
-    fac[0] = 1;
-    for(int i = 1;i <= n;i++){
-        fac[i] = 1ll * fac[i - 1] * i % P;
-    }
-    invfac[n] = inv(fac[n]);
-    for(int i = n - 1;i >= 0;i--){
-        invfac[i] = 1ll * invfac[i + 1] * (i + 1) % P;
-    }
-    for(int i = 0;i < n;i++){
-        a[i] = 1ll * f[i] * fac[i] % P;
-    }
-    int cp = 1;
-    for(int i = 0;i < n;i++){
-        b[i] = 1ll * cp * invfac[i] % P;
-        cp = 1ll * cp * c % P;
-    }
-    auto g = a.mulT(b);
-    poly res(n);
-    for(int i = 0;i < n;i++){
-        res[i] = 1ll * g[i] * invfac[i] % P;
-    }
-    return res;
-}
-
 int kitamasa(vector<int> a, vector<int> c, i64 n) //f_0~f_{k - 1} -> f_n
 {
     assert(c.size() == a.size() + 1);
@@ -646,368 +575,218 @@ int bostanMori(poly& p, poly& q, i64 n)
 int linearRecurrence(poly a, poly c, i64 n) //a_0 ... a_{k - 1} , c_1 ... c_k
 {
     assert(a.size() + 1 == c.size());
-    assert(c[0] == 0 || c[0] == P - 1);
-    c[0] = -1;
+    assert(c[0] == 0);
     int k = a.size();
-    poly p = (a * (-c)).trunc(k), q = -c;
+    poly p = a - (a * c).trunc(k), q = poly{1} - c;
     return bostanMori(p, q, n);
 }
 
-poly berlekampMassey(const vector<int>& s) {
-    if (s.empty()) {
-        return poly{P - 1};
+// 需要：全局模数 P；你的 poly 支持：
+// - poly(int n) / resize / operator[]
+// - operator* (NTT/暴力自动选择)
+// - inv(int m), trunc(int m), shift(int k)
+// 你给的 shift/trunc 语义是 OK 的（shift(-t) = 丢前 t 项）。
+
+static inline int ceil_pow2_int(int n) {
+    int p = 1;
+    while (p < n) p <<= 1;
+    return p;
+}
+static inline int mod_neg(int x) { return x ? (P - x) : 0; }
+
+// 定长反转：保证长度不变
+static inline poly revN(poly a, int n) {
+    a = a.trunc(n);
+    std::reverse(a.begin(), a.end());
+    return a;
+}
+
+// 连续存二维：按 x-major, y contiguous：a[x*ky + y]
+struct biMat {
+    int nx; // x 长度 = n+1
+    int ky; // y 长度 = k+1
+    poly a; // size = nx*ky
+    biMat() : nx(0), ky(0), a() {}
+    biMat(int _nx, int _ky) : nx(_nx), ky(_ky), a(_nx * _ky) {}
+    inline int& at(int x, int y) { return a[x * ky + y]; }
+    inline const int& at(int x, int y) const { return a[x * ky + y]; }
+};
+
+// pack: 把 biMat 以 idx = x*stride + y 打包成 1D poly（stride >= ky）
+static inline poly pack_2d(const biMat& M, int stride) {
+    poly p(M.nx * stride);
+    for (int x = 0; x < M.nx; ++x) {
+        int dst = x * stride;
+        int src = x * M.ky;
+        for (int y = 0; y < M.ky; ++y) p[dst + y] = M.a[src + y];
     }
+    return p;
+}
 
-    poly C{1};   // c[0] = 1
-    poly B{1};   
-    int L = 0;   
-    int m = 1;   // dist from last update
-    int b = 1;   // last discrepancy
-
-    for (int n = 0; n < (int)s.size(); n++) {
-        int d = 0;
-        for (int i = 0; i <= L; i++) {
-            if (n - i < 0) break;
-            d = (d + 1ll * C[i] * s[n - i]) % P;
-        }
-        if (d == 0) {
-            m++;
-            continue;
-        }
-
-        poly T = C; 
-
-        // coef = d / b
-        int coef = 1LL * d * inv(b) % P;
-
-        // C = C - coef * x^m * B
-        if ((int)C.size() < (int)B.size() + m) C.resize(B.size() + m, 0);
-        for (int i = 0; i < (int)B.size(); i++) {
-            C[i + m] = C[i + m] - 1ll * coef * B[i] % P;
-            if(C[i + m] < 0)C[i + m] += P;
-        }
-
-        if (2 * L <= n) {
-            L = n + 1 - L;
-            B = T;
-            b = d;
-            m = 1;
+// pack Q(-x,y)：不显式构造 R，打包时对奇数 x 行取负
+static inline poly pack_Q_negx(const biMat& Q, int stride) {
+    poly p(Q.nx * stride);
+    for (int x = 0; x < Q.nx; ++x) {
+        int dst = x * stride;
+        int src = x * Q.ky;
+        if (x & 1) {
+            for (int y = 0; y < Q.ky; ++y) p[dst + y] = mod_neg(Q.a[src + y]);
         } else {
-            m++;
+            for (int y = 0; y < Q.ky; ++y) p[dst + y] = Q.a[src + y];
         }
     }
-    return -C;
+    return p;
 }
 
-namespace compositon{
-    using biPoly = vector<poly>; // sum_{j>=0} A[j](x) * y^j
-
-    // (A*B) mod x^nx, y^my
-    // packing: x^i y^j -> t^{i + j*block}
-    biPoly biMul(const biPoly& A, const biPoly& B, int nx, int my) {
-        int Ay = min<int>(A.size(), my);
-        int By = min<int>(B.size(), my);
-        if (Ay == 0 || By == 0) return {};
-        int Cy = min<int>(Ay + By - 1, my);
-
-        int block = 2 * nx - 1;           
-        poly PA(Ay * block), PB(By * block);
-
-        for (int j = 0; j < Ay; j++) {
-            int lim = min<int>(nx, A[j].size());
-            for (int i = 0; i < lim; i++) PA[j * block + i] = A[j][i];
+// 构造 revR（editorial 的 revR[i] = R[n-i].rev()），但直接打包到 stride=2k+1
+static inline poly pack_revR_from_Q(const biMat& Q, int n, int k, int stride_2k1) {
+    // revR 视作 (n+1) x (2k+1)，只填 y=0..k，y>k 为 0
+    poly p((n + 1) * stride_2k1);
+    for (int x = 0; x <= n; ++x) {
+        int src_x = n - x;          // 取 R[n-x]
+        bool neg  = (src_x & 1);    // R = Q(-x) => R[src_x] = (-1)^{src_x} Q[src_x]
+        int dst = x * stride_2k1;
+        int src = src_x * Q.ky;
+        // rev(): y -> k - y
+        for (int y = 0; y <= k; ++y) {
+            int v = Q.a[src + (k - y)];
+            if (neg) v = mod_neg(v);
+            p[dst + y] = v;
         }
-        for (int j = 0; j < By; j++) {
-            int lim = min<int>(nx, B[j].size());
-            for (int i = 0; i < lim; i++) PB[j * block + i] = B[j][i];
-        }
-
-        poly PC = PA * PB;
-
-        biPoly C(Cy, poly(nx));
-        for (int j = 0; j < Cy; j++) {
-            int base = j * block;
-            for (int i = 0; i < nx; i++) {
-                int idx = base + i;
-                if (idx < (int)PC.size()) C[j][i] = PC[idx];
-            }
-        }
-        return C;
     }
-
-    // Q(-x,y)
-    biPoly neg_x(const biPoly& Q, int nx) {
-        biPoly R = Q;
-        for (auto& fx : R) {
-            if ((int)fx.size() < nx) fx.resize(nx);
-            for (int i = 1; i < nx; i += 2){
-                fx[i] = -fx[i];
-                if(fx[i] < 0)fx[i] += P;
-            }
-        }
-        return R;
-    }
-
-    // V(x^2,y) = A(x,y)
-    // 输入 A mod x^nx，输出 V mod x^{ceil(nx/2)}
-    biPoly even_x(const biPoly& A, int nx) {
-        int nx2 = (nx + 1) / 2;
-        biPoly V(A.size(), poly(nx2));
-        for (int j = 0; j < (int)A.size(); j++) {
-            int lim = min<int>(nx, A[j].size());
-            for (int i = 0; i < nx2; i++) {
-                int k = 2 * i;
-                if (k < lim) V[j][i] = A[j][k];
-            }
-        }
-        return V;
-    }
-
-    // W(x^2,y) mod x^nx
-    biPoly subst_x2(const biPoly& W, int nx) {
-        biPoly R(W.size(), poly(nx));
-        for (int j = 0; j < (int)W.size(); j++) {
-            for (int i = 0; i < (int)W[j].size(); i++) {
-                int k = 2 * i;
-                if (k < nx) R[j][k] = W[j][i];
-            }
-        }
-        return R;
-    }
-
-    // 取 y 的 [l, r) 段并左移：返回 size=r-l
-    biPoly slice_y(const biPoly& A, int l, int r, int nx) {
-        int len = max(0, r - l);
-        biPoly R(len, poly(nx));
-        for (int i = 0; i < len; i++) {
-            int j = l + i;
-            if (0 <= j && j < (int)A.size()) {
-                R[i] = A[j].trunc(nx);
-            }
-        }
-        return R;
-    }
-
-    // 忠实版 Comp：返回 F_{d,m}( P(y) / Q(x,y) ) mod x^nx
-    // P 是 y 多项式（长度 m）；Q 是 biPoly（y>=0）
-    // 返回 biPoly，size = m-d，且每项是 x 多项式（长度 nx）
-    biPoly Comp(const poly& P, const biPoly& Q,int nx, int d, int m) {
-        // base: x 只剩常数项
-        if (nx == 1) {
-            // Q0(y) = Q(0,y)
-            poly Q0(m);
-            int limy = min<int>(m, Q.size());
-            for (int j = 0; j < limy; j++) {
-                if (!Q[j].empty()) Q0[j] = Q[j][0];
-            }
-            // C(y) = P(y) / Q0(y) mod y^m
-            poly C = (P * Q0.inv(m)).trunc(m);
-
-            // 输出 y 的 [d,m)
-            biPoly res(m - d, poly(1));
-            for (int i = d; i < m; i++) res[i - d][0] = C[i];
-            return res;
-        }
-
-        int degyQ = min(m - 1, (int)Q.size() - 1);
-        int e = max(0, d - degyQ);
-
-        biPoly Qneg = neg_x(Q, nx);
-
-        // A = Q * Q(-x)  (mod x^nx, y^m)
-        biPoly A = biMul(Q, Qneg, nx, m);
-
-        // V(x,y) = A_even(x,y) with x := x^2 collapsed, so xlen halves
-        biPoly V = even_x(A, nx);
-        int nx2 = (nx + 1) / 2;
-
-        // W = Comp(nx2, e, m, P, V)   (y窗口从 e 开始)
-        biPoly W = Comp(P, V, nx2, e, m);
-
-        // lift: W(x^2,y)
-        biPoly W2 = subst_x2(W, nx);
-
-        // B = W(x^2,y) * Q(-x,y) 只需要 y < (m-e)
-        biPoly B = biMul(W2, Qneg, nx, m - e);
-
-        // 返回 y 的 [d-e, m-e)
-        return slice_y(B, d - e, m - e, nx);
-    }
-
-    poly comp(poly f, poly g, int n) {
-        f = f.trunc(n);
-        g = g.trunc(n);
-        if ((int)g.size() < n) g.resize(n);
-
-        int m = min<int>(n, f.size());
-        // P(y) = y^{m-1} f(1/y)  <=> P[i] = f[m-1-i]
-        poly P(m);
-        for (int i = 0; i < m; i++) P[i] = f[m - 1 - i];
-
-        // Q(x,y) = 1 - y g(x)
-        biPoly Q(2, poly(n));
-        Q[0][0] = 1;
-        Q[1] = (-g).trunc(n);
-        if ((int)Q[1].size() < n) Q[1].resize(n);
-
-        // 取 y^{m-1}：即 d=m-1, 输出 size=1
-        biPoly R = Comp(P, Q, n, m - 1, m);
-        return R[0].trunc(n);
-    }
-
-    biPoly biMul_fullX(const biPoly& A, const biPoly& B, int nx_in, int my) {
-        int Ay = std::min<int>((int)A.size(), my);
-        int By = std::min<int>((int)B.size(), my);
-        if (Ay == 0 || By == 0) return {};
-
-        int Cy = std::min<int>(Ay + By - 1, my);
-        int nx_out = 2 * nx_in - 1;
-
-        // block must be >= nx_out to avoid x-carry crossing y-blocks
-        int block = nx_out;
-
-        poly PA(Ay * block), PB(By * block);
-
-        for (int j = 0; j < Ay; j++) {
-            int lim = std::min<int>(nx_in, (int)A[j].size());
-            for (int i = 0; i < lim; i++) PA[j * block + i] = A[j][i];
-        }
-        for (int j = 0; j < By; j++) {
-            int lim = std::min<int>(nx_in, (int)B[j].size());
-            for (int i = 0; i < lim; i++) PB[j * block + i] = B[j][i];
-        }
-
-        poly PC = PA * PB;
-
-        biPoly C(Cy, poly(nx_out));
-        for (int j = 0; j < Cy; j++) {
-            int base = j * block;
-            for (int i = 0; i < nx_out; i++) {
-                int idx = base + i;
-                if (idx < (int)PC.size()) C[j][i] = PC[idx];
-            }
-        }
-        return C;
-    }
-
-    // pick x-parity and downsample: keep coeffs x^{2t+parity} -> new[t]
-    biPoly pick_parity_x(const biPoly& A, int parity, int nx_new) {
-        biPoly R(A.size(), poly(nx_new));
-        for (int j = 0; j < (int)A.size(); j++) {
-            int lim = (int)A[j].size();
-            for (int t = 0; t < nx_new; t++) {
-                int idx = 2 * t + parity;
-                if (idx < lim) R[j][t] = A[j][idx];
-            }
-        }
-        return R;
-    }
-
-    // ans[k] = [x^n] f(x)^k * g(x), k=0..n
-    // require f.size()==g.size()==n+1 and f[0]==0
-    poly powerProjection(poly f, poly g) {
-        int N = (int)f.size();
-        int n = N - 1;
-        // 当前 xlen = n+1, 当前 ylen = my
-        int nx = n + 1;
-        int my = std::min(N, 2); // 初始 Q = 1 - y f, 只需要 y^0..y^1
-
-        biPoly P, Q;
-        P.assign(1, g.trunc(nx)); // P(y) = g(x)
-        Q.assign(2, poly(nx));    // Q(y) = 1 - y f(x)
-        Q[0][0] = 1;
-        Q[1] = (-f).trunc(nx);
-
-        // 主循环：x-Bostan–Mori，目标提取 [x^n]
-        while (n > 0) {
-            // ylen 更新：乘法会让 ylen 至多变成 2*my-1，但我们只关心到 N 项
-            int my2 = std::min(N, 2 * my - 1);
-
-            // R = Q(-x,y)
-            biPoly R = neg_x(Q, nx);
-
-            // S = P * R , T = Q * R  (x full conv, y truncated)
-            biPoly S = biMul_fullX(P, R, nx, my2);
-            biPoly T = biMul_fullX(Q, R, nx, my2);
-
-            int parity = (n & 1);
-            int n2 = n >> 1;
-            int nx2 = n2 + 1;
-
-            // P <- pick parity row from S; Q <- even row from T
-            P = pick_parity_x(S, parity, nx2);
-            Q = pick_parity_x(T, 0, nx2);
-
-            // 截 ylen 到 my2（pick_parity_x 保留了全部 y 行）
-            if ((int)P.size() > my2) P.resize(my2);
-            if ((int)Q.size() > my2) Q.resize(my2);
-
-            // shrink n, nx, my
-            n = n2;
-            nx = nx2;
-            my = my2;
-        }
-
-        // n == 0 => x 只剩常数项：结果是 y-series = P0(y)/Q0(y)
-        // 取各 y^j 的 x^0 系数拼成 y 多项式
-        poly Py(my), Qy(my);
-        for (int j = 0; j < my; j++) {
-            if (j < (int)P.size() && !P[j].empty()) Py[j] = P[j][0];
-            if (j < (int)Q.size() && !Q[j].empty()) Qy[j] = Q[j][0];
-        }
-
-        poly invQy = Qy.inv(my);
-        poly ans = (Py * invQy).trunc(N); // 需要 0..N-1 共 N 项（k=0..n）
-        return ans;
-    }
-
-    // g = f^{<-1>} mod x^m, require f[0]=0 and f[1]!=0
-    poly compInv(poly f, int m) {
-        if (m <= 0) return poly();
-        if (m == 1) return poly{0};
-
-        f = f.trunc(m);
-        // assert(f.size() >= 2 && f[0] == 0 && f[1] != 0);
-
-        int c = f[1];
-        // powerProjection 需要 size = (m+1): n = m
-        poly fext = f;
-        fext.resize(m + 1);          // f[m]=0 不影响 mod x^m 的 inverse
-        poly one(m + 1);
-        one[0] = 1;
-
-        // hk[k] = [x^m] f(x)^k
-        poly hk = powerProjection(fext, one); // length m+1
-
-        // A(x) = (x/g)^m mod x^m  (length m)
-        poly A(m);
-        for (int k = 1; k <= m; k++) {
-            int deg = m - k;
-            // coeff = m/k * hk[k]
-            int coef = (long long)m * inv(k) % P * hk[k] % P;
-            A[deg] = coef;
-        }
-
-        // normalize by c^m so that B[0]=1
-        int cpm = power(c, m);
-        poly B = A / cpm;
-        // (optional) assert(B[0] == 1);
-
-        // H = x/g = c * exp( log(B)/m )
-        poly L = (B.log(m) / m); // /m uses scalar inverse via your operator/(int)
-        poly H = L.exp(m) * c;
-
-        // g = x * inv(H)
-        poly invH = H.inv(m);
-        poly ginv = invH.shift(1).trunc(m);
-        return ginv;
-    }
+    return p;
 }
+
+// inner(g, Q, n, k) 的打包优化版本（对齐 editorial）
+// 输入：Q 形状 (n+1) x (k+1)
+// 返回：P 形状 (n+1) x (k+1)
+static biMat inner_KL_fast(const poly& gY, const biMat& Q, int n, int k) {
+    if (n == 0) {
+        // editorial: h = g * Q0.inv().rev(); P0[i] = h[i + Q0.size() - 1]
+        poly q0(k + 1);
+        for (int y = 0; y <= k; ++y) q0[y] = Q.at(0, y);
+
+        poly invq0 = q0.inv(k + 1);
+        std::reverse(invq0.begin(), invq0.end()); // 定长 rev，invq0 长度 k+1
+
+        poly h = gY * invq0; // 长度约 gY.size + (k+1) -1
+
+        biMat P(1, k + 1);
+        int off = (int)q0.size() - 1; // = k
+        int lim = (int)gY.size();     // editorial 用 g.size()
+        lim = std::min(lim, k + 1);   // 防越界/保证 P 维度
+        for (int i = 0; i < lim; ++i) {
+            int idx = i + off;
+            P.at(0, i) = (idx < (int)h.size()) ? h[idx] : 0;
+        }
+        // 其余系数自然保持 0
+        return P;
+    }
+
+    // stride = 2k+1，对应 ydeg <= 2k 的部分（足够恢复后面要用的 y in [k,2k]）:contentReference[oaicite:4]{index=4}
+    int stride = 2 * k + 1;
+
+    // 1) T = multiply2d(Q, R), R = Q(-x)
+    // 只需要 T 的偶数 x 行来构造 V
+    poly pQ = pack_2d(Q, stride);
+    poly pR = pack_Q_negx(Q, stride);
+    poly pT = pQ * pR; // 1D 卷积等价于 2D 卷积（因为 stride 足够大）
+
+    // 2) V[i] = T[2i], 维度：(n/2+1) x (2k+1)
+    int nxV = n / 2 + 1;
+    biMat V(nxV, stride);
+    for (int i = 0; i < nxV; ++i) {
+        int src_row = (2 * i) * stride;
+        int dst_row = i * stride;
+        for (int y = 0; y < stride; ++y) {
+            int idx = src_row + y;
+            V.a[dst_row + y] = (idx < (int)pT.size()) ? pT[idx] : 0;
+        }
+    }
+
+    // 3) U = inner(g, V, n/2, 2k)
+    biMat U = inner_KL_fast(gY, V, n / 2, 2 * k);
+
+    // 4) 构造 S：大小 (2n+1) x (2k+1)，只在 x = 2i + n%2 处放 U[i]
+    poly pS((2 * n + 1) * stride);
+    int b = n % 2;
+    for (int i = 0; i < nxV; ++i) {
+        int x = 2 * i + b;
+        int dst = x * stride;
+        int src = i * stride; // U.ky == stride
+        for (int y = 0; y < stride; ++y) pS[dst + y] = U.a[src + y];
+    }
+
+    // 5) revR 打包 & Pshift = multiply2d(S, revR)
+    poly pRevR = pack_revR_from_Q(Q, n, k, stride);
+    poly pPshift = pS * pRevR; // ★关键修正：这里必须是普通乘法，不是 mulT
+
+    // 6) P[i][j] = Pshift[i+n][j+k]
+    biMat P(n + 1, k + 1);
+    for (int i = 0; i <= n; ++i) {
+        int base = (i + n) * stride + k;
+        int dst  = i * (k + 1);
+        for (int j = 0; j <= k; ++j) {
+            int idx = base + j;
+            P.a[dst + j] = (idx < (int)pPshift.size()) ? pPshift[idx] : 0;
+        }
+    }
+    return P;
+}
+
+// 对外：返回 outer(inner(x)) mod x^m，要求 inner[0]==0
+poly comp(poly outer, poly inner, int m) {
+    if (m <= 0) return poly();
+    if (m == 1) return poly{ outer.size() ? outer[0] : 0 };
+
+    int N = ceil_pow2_int(m);
+
+    outer = outer.trunc(N);
+    inner = inner.trunc(N);
+    outer.resize(N);
+    inner.resize(N);
+
+    // 要求 inner[0] == 0（否则需要先平移处理）
+    // assert(inner[0] == 0);
+
+    int n = N - 1, k = 1;
+
+    // Q(x,y) = 1 - y * inner(x)  —— 注意这里用的是 inner
+    biMat Q(n + 1, k + 1);
+    Q.at(0, 0) = 1;
+    for (int i = 0; i <= n; ++i) Q.at(i, 1) = mod_neg(inner[i]);
+
+    // inner() 的参数 gY 在推导里视为“y 多项式”，这里传 outer（对齐 editorial）:contentReference[oaicite:5]{index=5}
+    biMat P = inner_KL_fast(outer, Q, n, k);
+
+    poly h(N);
+    for (int i = 0; i <= n; ++i) h[i] = P.at(i, 0);
+    std::reverse(h.begin(), h.end());
+    return h.trunc(m);
+}
+
+
+
+
 
 
 void solve()
 {
-    
+    int n, m;
+    cin >> n >> m;
+    poly f(n + 1), g(m + 1);
+    for(int i = 0;i <= n;i++){
+        cin >> f[i];
+    }
+    for(int i = 0;i <= m;i++){
+        cin >> g[i];
+    }
+    auto h = comp(f, g, n + 1);
+    for(int i = 0;i <= n;i++){
+        cout << h[i] << " ";
+    }
+    cout << endl;
+    return;
 }
 
 int main()
