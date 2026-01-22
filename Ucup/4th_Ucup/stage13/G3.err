@@ -1,0 +1,400 @@
+1
+update -9820
+2
+update 9821
+3
+update 9822
+4
+update -9819
+5
+update -9818
+6
+update 9823
+7
+update 9824
+8
+update -9817
+9
+update -9816
+10
+update 9825
+11
+update -9815
+12
+update -9814
+13
+update -9813
+14
+update 9826
+15
+update -9812
+16
+update -9811
+17
+update -9810
+18
+update 9827
+19
+update 9828
+20
+update 9829
+21
+update 9830
+22
+update 9831
+23
+update -9809
+24
+update 9832
+25
+update 9833
+26
+update 9834
+27
+update -9808
+28
+update 9835
+29
+update 9836
+30
+update -9807
+31
+update 9837
+32
+update -9806
+33
+update 9838
+34
+update 9839
+35
+update -9805
+36
+update 9840
+37
+update -9804
+38
+update -9803
+39
+update -9802
+40
+update -9801
+41
+update 9841
+42
+update 9842
+43
+update -9800
+44
+update -9799
+45
+update 9843
+46
+update -9798
+47
+update -9797
+48
+update 9844
+49
+update 9845
+50
+update -9796
+51
+update 9846
+52
+update 9847
+53
+update -9795
+54
+update 9848
+55
+update 9849
+56
+update 9850
+57
+update -9794
+58
+update 9851
+59
+update -9793
+60
+update 9852
+61
+update -9792
+62
+update -9791
+63
+update -9790
+64
+update -9789
+65
+update -9788
+66
+update -9787
+67
+update -9786
+68
+update -9785
+69
+update -9784
+70
+update 9853
+71
+update -9783
+72
+update 9854
+73
+update 9855
+74
+update 9856
+75
+update 9857
+76
+update 9858
+77
+update -9782
+78
+update -9781
+79
+update 9859
+80
+update 9860
+81
+update 9861
+82
+update -9780
+83
+update -9779
+84
+update -9778
+85
+update -9777
+86
+update 9862
+87
+update 9863
+88
+update -9776
+89
+update -9775
+90
+update -9774
+91
+update 9864
+92
+update -9773
+93
+update 9865
+94
+update 9866
+95
+update -9772
+96
+update 9867
+97
+update 9868
+98
+update -9771
+99
+update -9770
+100
+update -9769
+101
+update 9869
+102
+update -9768
+103
+update 9870
+104
+update -9767
+105
+update 9871
+106
+update -9766
+107
+update 9872
+108
+update 9873
+109
+update 9874
+110
+update 9875
+111
+update -9765
+112
+update 9876
+113
+update 9877
+114
+update 9878
+115
+update -9764
+116
+update -9763
+117
+update -9762
+118
+update 9879
+119
+update -9761
+120
+update -9760
+121
+update -9759
+122
+update -9758
+123
+update 9880
+124
+update -9757
+125
+update 9881
+126
+update -9756
+127
+update -9755
+128
+update -9754
+129
+update 9882
+130
+update 9883
+131
+update -9753
+132
+update 9884
+133
+update -9752
+134
+update -9751
+135
+update 9885
+136
+update -9750
+137
+update 9886
+138
+update -9749
+139
+update 9887
+140
+update 9888
+141
+update -9748
+142
+update 9889
+143
+update 9890
+144
+update 9891
+145
+update -9747
+146
+update -9746
+147
+update 9892
+148
+update -9745
+149
+update -9744
+150
+update -9743
+151
+update -9742
+152
+update 9893
+153
+update 9894
+154
+update 9895
+155
+update 9896
+156
+update 9897
+157
+update -9741
+158
+update -9740
+159
+update -9739
+160
+update 9898
+161
+update -9738
+162
+update 9899
+163
+update -9737
+164
+update 9900
+165
+update -9736
+166
+update 9901
+167
+update 9902
+168
+update 9903
+169
+update 9904
+170
+update 9905
+171
+update -9735
+172
+update -9734
+173
+update -9733
+174
+update -9732
+175
+update 9906
+176
+update -9731
+177
+update -9730
+178
+update -9729
+179
+update -9728
+180
+update 9907
+181
+update 9908
+182
+update 9909
+183
+update 9910
+184
+update 9911
+185
+update -9727
+186
+update -9726
+187
+update -9725
+188
+update -9724
+189
+update 9912
+190
+update 9913
+191
+update -9723
+192
+update -9722
+193
+update 9914
+194
+update 9915
+195
+update 9916
+196
+update 9917
+197
+update 9918
+198
+update 9919
+199
+update 10001
+sum = 0
+Assertion failed: 0, file G3.cpp, line 82

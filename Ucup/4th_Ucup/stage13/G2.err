@@ -1,0 +1,266 @@
+1
+update 1
+2
+update 1001
+3
+update -10000
+4
+update 3001
+5
+update 4001
+6
+update 5001
+7
+update 6001
+8
+update 7001
+9
+update -9999
+10
+update -9998
+11
+update 1002
+12
+update -9997
+13
+update 3002
+14
+update -9996
+15
+update 5002
+16
+update 6002
+17
+update -9995
+18
+update 8001
+19
+update 2
+20
+update -9994
+21
+update 2001
+22
+update 3003
+23
+update -9993
+24
+update 5003
+25
+update 6003
+26
+update 7002
+27
+update 8002
+28
+update -9992
+29
+update -9991
+30
+update 2002
+31
+update 3004
+32
+update -9990
+33
+update 5004
+34
+update 6004
+35
+update 7003
+36
+update 8003
+37
+update -9989
+38
+update 1003
+39
+update 2003
+40
+update -9988
+41
+update 4002
+42
+update 5005
+43
+update 6005
+44
+update 7004
+45
+update 8004
+46
+update -9987
+47
+update -9986
+48
+update 2004
+49
+update 3005
+50
+update 4003
+51
+update 5006
+52
+update 6006
+53
+update 7005
+54
+update 8005
+55
+update 3
+56
+update 1004
+57
+update 2005
+58
+update 3006
+59
+update 4004
+60
+update -9985
+61
+update -9984
+62
+update 7006
+63
+update -9983
+64
+update 4
+65
+update 1005
+66
+update 2006
+67
+update 3007
+68
+update -9982
+69
+update 5007
+70
+update -9981
+71
+update 7007
+72
+update 8006
+73
+update 5
+74
+update -9980
+75
+update 2007
+76
+update 3008
+77
+update -9979
+78
+update 5008
+79
+update 6007
+80
+update -9978
+81
+update 8007
+82
+update 6
+83
+update 1006
+84
+update 2008
+85
+update 3009
+86
+update 4005
+87
+update 5009
+88
+update 6008
+89
+update 7008
+90
+update -9977
+91
+update 7
+92
+update 1007
+93
+update 2009
+94
+update 3010
+95
+update 4006
+96
+update -9976
+97
+update 6009
+98
+update 7009
+99
+update -9975
+100
+update -9974
+101
+update 1008
+102
+update 2010
+103
+update -9973
+104
+update -9972
+105
+update 5010
+106
+update 6010
+107
+update 7010
+108
+update 8008
+109
+update 8
+110
+update -9971
+111
+update 2011
+112
+update 3011
+113
+update 4007
+114
+update 5011
+115
+update 6011
+116
+update 7011
+117
+update -9970
+118
+update 9
+119
+update 1009
+120
+update 2012
+121
+update 3012
+122
+update 4008
+123
+update 5012
+124
+update -9001
+125
+update -9000
+126
+update 8009
+127
+update 4009
+128
+update 9002
+129
+update 9003
+130
+update 9004
+131
+update 10001
+132
+update 10001
+same number
+Assertion failed: 0, file G2.cpp, line 64

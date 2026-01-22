@@ -1,0 +1,266 @@
+1
+update 1
+2
+update 3334
+3
+update 2
+4
+update 3335
+5
+update 3
+6
+update 3336
+7
+update 4
+8
+update 3337
+9
+update 5
+10
+update 3338
+11
+update 6
+12
+update 3339
+13
+update 7
+14
+update 3340
+15
+update 8
+16
+update 3341
+17
+update 9
+18
+update 3342
+19
+update 10
+20
+update 3343
+21
+update 11
+22
+update 3344
+23
+update 12
+24
+update 3345
+25
+update 13
+26
+update 3346
+27
+update 14
+28
+update 3347
+29
+update 15
+30
+update 3348
+31
+update 16
+32
+update 3349
+33
+update 17
+34
+update 3350
+35
+update 18
+36
+update 3351
+37
+update 19
+38
+update 3352
+39
+update 20
+40
+update 3353
+41
+update 21
+42
+update 3354
+43
+update 22
+44
+update 3355
+45
+update 23
+46
+update 3356
+47
+update 24
+48
+update 3357
+49
+update 25
+50
+update 3358
+51
+update 26
+52
+update 3359
+53
+update 27
+54
+update 3360
+55
+update 28
+56
+update 3361
+57
+update 29
+58
+update 3362
+59
+update 30
+60
+update 3363
+61
+update 31
+62
+update 3364
+63
+update 32
+64
+update 3365
+65
+update 33
+66
+update 3366
+67
+update 34
+68
+update 3367
+69
+update 35
+70
+update 3368
+71
+update 36
+72
+update 3369
+73
+update 37
+74
+update 3370
+75
+update 38
+76
+update 3371
+77
+update 39
+78
+update 3372
+79
+update 40
+80
+update 3373
+81
+update 41
+82
+update 3374
+83
+update 42
+84
+update 3375
+85
+update 43
+86
+update 3376
+87
+update 44
+88
+update 3377
+89
+update 45
+90
+update 3378
+91
+update 46
+92
+update 3379
+93
+update 47
+94
+update 3380
+95
+update 48
+96
+update 3381
+97
+update 49
+98
+update 3382
+99
+update 50
+100
+update 3383
+101
+update 51
+102
+update 3384
+103
+update 52
+104
+update 3385
+105
+update 53
+106
+update 3386
+107
+update 54
+108
+update 3387
+109
+update 55
+110
+update 3388
+111
+update 56
+112
+update 3389
+113
+update 57
+114
+update 3390
+115
+update 58
+116
+update 3391
+117
+update 59
+118
+update 3392
+119
+update 60
+120
+update 3393
+121
+update -10000
+122
+update -9999
+123
+update -9998
+124
+update -9997
+125
+update -9996
+126
+update -9995
+127
+update -9994
+128
+update -9993
+129
+update -9992
+130
+update -9991
+131
+update -9990
+132
+update -9989
+sum = 0
+Assertion failed: 0, file G.cpp, line 76
