@@ -6,7 +6,7 @@ $$n! =  p^{\nu_p(n!)} (n!)_p$$
 $$\nu_p(n!) = \sum_{i = 1}^\infty \left\lfloor\frac{n}{p^i}\right\rfloor = \frac{n - S_p(n)}{p - 1}$$
 其中，$S_p(n)$ 为 $p$ 进制下 $n$ 的各个数位的和。
 这个公式的由来与 $n$ 在 $p$ 进制 下的表示有关
-参考实现：
+参考实现(模拟前面那部分就行)：
 ```c++
 // Obtain multiplicity of p in n!.
 int multiplicity_factorial(int n, int p) {

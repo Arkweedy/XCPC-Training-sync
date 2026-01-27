@@ -284,8 +284,11 @@ public:
     }
 
     constexpr poly rev() const{
+        if(this->empty()){
+            return poly();
+        }
         poly res = *this;
-        while(res.back() == 0)res.pop_back();
+        while(!res.empty() && res.back() == 0)res.pop_back();
         reverse(res.begin(),res.end());
         return res;
     }
@@ -524,7 +527,7 @@ constexpr poly lagrange(vector<int>x, vector<int>y)
     return work(work, 0, n - 1, 1);
 }
 
-constexpr vector<int> cshift(vector<int>v, int c) //continue val shift
+constexpr vector<int> valueShift(vector<int>v, int c) //continue val shift
 {
     int n = v.size() - 1;
     poly a(n + 1),b(n * 2 + 1);
@@ -564,7 +567,7 @@ constexpr vector<int> cshift(vector<int>v, int c) //continue val shift
     return vc;
 }
 
-constexpr poly trans(poly& f, int c)
+constexpr poly taylorShift(poly& f, int c)
 {
     int n = f.size();
     poly a(n), b(n * 2 - 1);

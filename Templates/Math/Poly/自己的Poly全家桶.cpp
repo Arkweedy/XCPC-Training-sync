@@ -37,6 +37,53 @@ int inv(int a)
     return power(a, P - 2);
 }
 
+struct Comb {
+    int n;
+    std::vector<int> _fac;
+    std::vector<int> _invfac;
+    std::vector<int> _inv;
+     
+    Comb() : n{0}, _fac{1}, _invfac{1}, _inv{0} {}
+    Comb(int n) : Comb() {
+        init(n);
+    }
+     
+    void init(int m) {
+        if (m <= n) return;
+        _fac.resize(m + 1);
+        _invfac.resize(m + 1);
+        _inv.resize(m + 1);
+         
+        for (int i = n + 1; i <= m; i++) {
+            _fac[i] = 1ll * _fac[i - 1] * i % P;
+        }
+        _invfac[m] = power(_fac[m], P - 2);
+        for (int i = m; i > n; i--) {
+            _invfac[i - 1] = 1ll * _invfac[i] * i % P;
+            _inv[i] = 1ll * _invfac[i] * _fac[i - 1] % P;
+        }
+        n = m;
+    }
+     
+    int fac(int m) {
+        if (m > n) init(2 * m);
+        return _fac[m];
+    }
+    int invfac(int m) {
+        if (m > n) init(2 * m);
+        return _invfac[m];
+    }
+    int inv(int m) {
+        if (m > n) init(2 * m);
+        return _inv[m];
+    }
+    int binom(int n, int m) {
+        if (n < m || m < 0) return 0;
+        return fac(n) * invfac(m) * invfac(n - m);
+    }
+} comb;
+
+
 int bsgs(int a, int b, int p)
 {
     a %= p;
@@ -73,7 +120,7 @@ int Fsqrt(int x)
 constexpr int Q = 23; //998244353 = K 2^Q + 1
 constexpr int MAX_LEN = 22;
 
-const array<int, 1 << MAX_LEN> omega()
+array<int, 1 << MAX_LEN> omega()
 {
     array<int, 1 << MAX_LEN> res;
     res.fill(1);
@@ -148,28 +195,27 @@ void idft(vector<int>& f)
     return;
 }
 
-
 class poly : public vector<int>
 {
 public:
     poly() : vector<int>(){}
 
     template<class F>
-    explicit constexpr poly(int n, F f) : vector<int>(n)
+    explicit poly(int n, F f) : vector<int>(n)
     {
         for(int i = 0;i < n;i++){
             (*this)[i] = f(i);
         }
     }
     template<class InputIt, class = std::_RequireInputIter<InputIt>>
-    explicit constexpr poly(InputIt first, InputIt last) : std::vector<int>(first, last) {}
+    explicit poly(InputIt first, InputIt last) : vector<int>(first, last) {}
     
-    explicit constexpr poly(int n, int val) : vector<int>(n, val){}
-    explicit constexpr poly(int n) : vector<int>(n){}
-    explicit constexpr poly(const std::vector<int> &a) : std::vector<int>(a) {}
-    constexpr poly(const std::initializer_list<int> &a) : vector<int>(a){}
+    explicit poly(int n, int val) : vector<int>(n, val){}
+    explicit poly(int n) : vector<int>(n){}
+    explicit poly(const vector<int> &a) : vector<int>(a) {}
+    poly(const std::initializer_list<int> &a) : vector<int>(a){}
 
-    constexpr friend poly operator+(const poly &a, const poly &b) {
+    friend poly operator+(const poly &a, const poly &b) {
         poly res(std::max(a.size(), b.size()));
         for (int i = 0; i < a.size(); i++) {
             res[i] = a[i];
@@ -180,7 +226,7 @@ public:
         }
         return res;
     }
-    constexpr friend poly operator-(const poly &a, const poly &b) {
+    friend poly operator-(const poly &a, const poly &b) {
         poly res(std::max(a.size(), b.size()));
         for (int i = 0; i < a.size(); i++) {
             res[i] = a[i];
@@ -191,28 +237,28 @@ public:
         }
         return res;
     }
-    constexpr friend poly operator-(const poly &a) {
+    friend poly operator-(const poly &a) {
         std::vector<int> res(a.size());
         for (int i = 0; i < int(res.size()); i++) {
             res[i] = a[i] ? P - a[i] : 0;
         }
         return poly(res);
     }
-    constexpr friend poly operator*(int a, poly b) {
+    friend poly operator*(int a, poly b) {
         a = (a % P + P) % P;
         for (int i = 0; i < int(b.size()); i++) {
             b[i] = 1ll * b[i] * a % P;
         }
         return b;
     }
-    constexpr friend poly operator*(poly a, int b) {
+    friend poly operator*(poly a, int b) {
         b = (b % P + P) % P;
         for (int i = 0; i < int(a.size()); i++) {
             a[i] = 1ll * a[i] * b % P;
         }
         return a;
     }
-    constexpr friend poly operator/(poly a, int b) {
+    friend poly operator/(poly a, int b) {
         b = (b % P + P) % P;
         int invb = power(b, P - 2);
         for (int i = 0; i < int(a.size()); i++) {
@@ -221,32 +267,32 @@ public:
         return a;
     }
 
-    constexpr friend poly operator/(const poly &a, const poly &b) {
+    friend poly operator/(const poly &a, const poly &b) {
         if(a.size() < b.size())return poly();
         int k = a.size() - b.size() + 1;
         return (a.rev().trunc(k) * b.rev().inv(k).trunc(k)).trunc(k).rev();
     }
-    constexpr friend poly operator%(const poly &a, const poly &b) {
+    friend poly operator%(const poly &a, const poly &b) {
         return (a - a / b * b).trunc(min(a.size(), b.size() - 1));
     }
 
-    constexpr poly &operator+=(poly b) {
+    poly &operator+=(poly b) {
         return (*this) = (*this) + b;
     }
-    constexpr poly &operator-=(poly b) {
+    poly &operator-=(poly b) {
         return (*this) = (*this) - b;
     }
-    constexpr poly &operator*=(poly b) {
+    poly &operator*=(poly b) {
         return (*this) = (*this) * b;
     }
-    constexpr poly &operator*=(int b) {
+    poly &operator*=(int b) {
         return (*this) = (*this) * b;
     }
-    constexpr poly &operator/=(int b) {
+    poly &operator/=(int b) {
         return (*this) = (*this) / b;
     }
 
-    constexpr friend poly operator*(poly a, poly b) {
+    friend poly operator*(poly a, poly b) {
         if (a.size() == 0 || b.size() == 0) {
             return poly();
         }
@@ -278,7 +324,7 @@ public:
         return a;
     }
 
-    constexpr poly shift(int k) const {
+    poly shift(int k) const {
         if (k >= 0) {
             auto b = *this;
             b.insert(b.begin(), k, 0);
@@ -290,13 +336,13 @@ public:
         }
     }
 
-    constexpr poly trunc(int k) const {
+    poly trunc(int k) const {
         poly f = *this;
         f.resize(k);
         return f;
     }
 
-    constexpr poly deriv() const {
+    poly deriv() const {
         if (this->empty()) {
             return poly();
         }
@@ -307,15 +353,16 @@ public:
         return res;
     }
 
-    constexpr poly integr() const {
+    poly integr() const {
         poly res(this->size() + 1);
+        comb.init(this->size() + 1);
         for (int i = 0; i < this->size(); ++i) {
-            res[i + 1] = 1ll * (*this)[i] * power(i + 1, P - 2) % P;
+            res[i + 1] = 1ll * (*this)[i] * comb.inv(i + 1) % P;
         }
         return res;
     }
 
-    constexpr poly rev() const{
+    poly rev() const{
         if(this->empty()){
             return poly();
         }
@@ -325,7 +372,7 @@ public:
         return res;
     }
 
-    constexpr poly inv(int m) const {
+    poly inv(int m) const {
         poly x{power((*this)[0], P - 2)};
         int k = 1;
         while (k < m) {
@@ -335,11 +382,11 @@ public:
         return x.trunc(m);
     }
 
-    constexpr poly log(int m) const {
+    poly log(int m) const {
         return (deriv() * inv(m)).integr().trunc(m);
     }
 
-    constexpr poly exp(int m) const {
+    poly exp(int m) const {
         poly x{1};
         int k = 1;
         while (k < m) {
@@ -349,7 +396,7 @@ public:
         return x.trunc(m);
     }
 
-    constexpr poly exp2(int m) const {
+    poly exp2(int m) const {
         poly f(m), h = deriv();
         h.resize(m);
         f[0] = 1;
@@ -358,7 +405,7 @@ public:
         {
             if(l == r){
                 if(l == 0)return;
-                f[l] = 1ll * f[l] * power(l, P - 2) % P;
+                f[l] = 1ll * f[l] * comb.inv(l) % P;
                 return;
             }
             int m = l + r >> 1;
@@ -372,7 +419,8 @@ public:
             }
             auto c = a * b;
             for(int i = 0;i < r - m;i++){
-                f[m + i + 1] = (f[m + i + 1] + c[i + m - l]) % P;
+                f[m + i + 1] = f[m + i + 1] + c[i + m - l];
+                if(f[m + i + 1] >= P)f[m + i + 1] -= P;
             }
             self(self, m + 1, r);
             return;
@@ -381,7 +429,7 @@ public:
         return f;
     }
 
-    constexpr poly pow(int k, int m) const {
+    poly pow(int k, int m) const {
         int i = 0;
         while (i < this->size() && (*this)[i] == 0) {
             i++;
@@ -394,7 +442,7 @@ public:
         return ((f.log(m - i * k) * k).exp2(m - i * k).shift(i * k)) * power(v, k);
     }
 
-    constexpr poly pow(int k, int kmodphiP,int big, int m) const {
+    poly pow(int k, int kmodphiP,int big, int m) const {
         int i = 0;
         while (i < this->size() && (*this)[i] == 0) {
             i++;
@@ -408,7 +456,7 @@ public:
         return ((f.log(m - i * k) * k).exp2(m - i * k).shift(i * k)) * power(v, kmodphiP);
     }
 
-    constexpr poly sqrt(int m) const {
+    poly sqrt(int m) const {
         poly x{Fsqrt((*this)[0])};
         int k = 1;
         while (k < m) {
@@ -418,7 +466,7 @@ public:
         return x.trunc(m);
     }
 
-    constexpr poly mulT(poly b) const {
+    poly mulT(poly b) const {
         if (b.size() == 0) {
             return poly();
         }
@@ -427,7 +475,7 @@ public:
         return ((*this) * b).shift(-(n - 1));
     }
 
-    constexpr vector<int> eval(vector<int> x)const 
+    vector<int> eval(vector<int> x)const 
     {
         if(this->size() == 0){
             return vector<int>(x.size(), 0);
@@ -473,7 +521,7 @@ public:
 
 };
 
-constexpr poly lagrange(vector<int>x, vector<int>y)
+poly lagrange(vector<int>x, vector<int>y)
 {
     assert(x.size() == y.size());
     if(x.size() == 0)return poly();
@@ -517,7 +565,7 @@ constexpr poly lagrange(vector<int>x, vector<int>y)
     return work(work, 0, n - 1, 1);
 }
 
-constexpr vector<int> cshift(const vector<int>&v, int c)
+vector<int> valueShift(const vector<int>&v, int c)
 {
     int n = v.size() - 1;
     poly a(n + 1),b(n * 2 + 1);
@@ -557,7 +605,7 @@ constexpr vector<int> cshift(const vector<int>&v, int c)
     return vc;
 }
 
-constexpr poly trans(poly& f, int c)
+poly taylorShift(poly& f, int c)
 {
     int n = f.size();
     poly a(n), b(n * 2 - 1);
@@ -972,7 +1020,17 @@ namespace compositon{
 
 void solve()
 {
-    
+    int n;
+    cin >> n;
+    poly f(n);
+    for(int i = 0;i < n;i++){
+        cin >> f[i];
+    }
+    auto g = f.sqrt(n);
+    for(int i = 0;i < n;i++){
+        cout << g[i] << " ";
+    }
+    cout << endl;
 }
 
 int main()
