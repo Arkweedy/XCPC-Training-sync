@@ -181,8 +181,64 @@ Q^R(x) = \frac{A^R(x)}{B^R(x)} \mod x^{n - m + 1}$$
 于是通过一次多项式求逆和多项式乘法就可以算出$Q(x)$，而知道$Q(x)$后，$R(x)$就很容易计算了。
 
 ## 多项式多点求值 `eval(vector<int>x)`
+其实就是使用分治去求解，不过可以通过一些科技去显著降低常数
+### 朴素方法
+求解$f(x_0),f(x_1) \dots f(x_{n - 1})$,设 $m = \lfloor\frac{n}{2}\rfloor$, $M_{l,r} = \prod_{i = l}^r (x-x_i)$
+将$f(x)$ 拆成两部分:
+$f(x) = M_{0,m}(x)P(x) + R(x)$
+显然左边这部分对于$x = x_0, x_1,\dots,x_m$的贡献均为 $0$ 于是我们可以递归下去，对 $R$ 求解。
+这里需要一次多项式取模，复杂度$O(n \log n)$，不过常数偏大。
+而对于$x = x_{m + 1}, \dots , x_{n - 1}$， 我们模上 $M_{m + 1, n - 1}$ 同样递归求解即可。
+构建 $M$ 我们使用分治ntt,时间复杂度是 $O(n \log^2 n)$
+于是最后的时间复杂度 $T(n) = O(n \log n) + 2 T(\frac{n}{2}) \Rightarrow T(n) = O(n \log^2 n)$
+实际上，很容易注意到一个点:
+$$f(x_i) = f(x) \bmod (x - x_i)$$
+我们上述做法不过是在分治地取模而已，类似于分治ntt(虽然这个是自顶向下的)
+
+### Laurent 级数 / 转置原理(特勒根原理)
+这里给出一个形式洛朗级数的式子
+$$f(v) = [x^0]\frac{f(x^{-1})}{1 - vx}$$
+这是好验证的，展开分母，$x^0$的系数显然是：
+$$\sum_{i = 0}^{\infty} f_i v^i = f(v)$$
+原理推导完毕，我们希望对于每一个 $v = x_i$ 计算出上式。
+于是还是考虑分治：
+设$M_{l, r} = \prod_{i = l} ^ r (1 - x_i x)$
+我们从$\frac{f(x^{-1})}{M_{0, n - 1}}$开始递归， 从区间 $[l, r]$ 求解区间 $[l, m]$ 时,乘上$M_{m+1,r}$即可。
+此时我们每次递归下去仅需要一次多项式乘法，相比多项式取模常数大大减小。
+
+不过需要注意的是：这里的乘法不是一般的矩阵乘法！因为我们维护的是一个以$x^{-1}$为变量的多项式，所以这里实际上是差卷积，也可以从转置原理的角度理解为转置乘法。
+因为我们希望最终得到$x^0$的系数，于是如果这个区间还有$k$个点值需要求解，我们将多项式截断到$x^{-k}$即可
+递归过程的时间复杂度是类似的，为$O(n \log^2 n)$, 加上构建 $M$ 的时间复杂度 $O(n \log^2 n)$ 和一次多项式求逆 $O(n \log n)$， 总时间复杂度$O(n \log^2 n)$
+
+当然，这个做法可以从朴素做法的转置这个角度来理解，不过可能需要对线性变换的理解到达一定程度。
 
 ## 多项式快速插值 `lagrange(vector<int>x, vector<int>y)`
+设$M(x) = \prod_{i = 0}^n  (x - x_i)$
+考虑lagrange插值公式：
+$$\begin{align*}
+f(x) &= \sum_{i = 0}^{n} y_i \prod_{j \neq i} \frac{x - x_j}{x_i - x_j}\\
+\end{align*}$$
+对于右边式子的分母，使用**洛必达法则**，有:
+$$\prod_{j \neq i} \frac{1}{x_i - x_j} = \lim_{x\rightarrow x_i} \frac{x - x_i}{\prod_j x - x_j} 
+= \lim_{x\rightarrow x_i} \frac{x - x_i}{M(x)} = \frac{1}{M'(x_i)}$$
+于是
+$$\begin{align*}
+f(x) &= \sum_{i = 0}^{n} \frac{y_i}{M'(x_i)} \prod_{j \neq i} x - x_j\\
+&= \sum_{i = 0}^{n} v_i \prod_{j \neq i} x - x_j
+\end{align*}$$
+分治ntt算出$M(x)$, 用多点求值求出$M'(x_i)$, 进一步求出 $v_i$
+剩下的问题就是怎么计算上面那个和式
+还是考虑分治，假设分治到区间$[l, r]$有结果
+$$\begin{align*}
+f_{l, r} &= \sum_{i = l}^r v_i\prod_{j \neq i, l \leq j \leq r}x - x_j \\
+&= f_{l, m} \prod_{j = m + 1}^{r}x - x_j + f_{m + 1, r} \prod_{j = l}^{m}x - x_j
+\end{align*}$$
+前面分治ntt计算$M(x)$时预处理好连乘积多项式， 按照上式分治递归下去即可。
+时间复杂度为$O(n \log^2 n)$
+
+## 多项式平移
+
+## 多项式连续点值平移
 
 ## 常系数齐次线性递推 
 ### Kitamasa/Fiduccia 算法 `kitamasa(vector<int>a, vector<int>c, i64 n)`
@@ -193,15 +249,13 @@ Q^R(x) = \frac{A^R(x)}{B^R(x)} \mod x^{n - m + 1}$$
 $S(x) = P(x) + d x^n + ... \pmod {C(x)}$
 
 ## 多项式复合 `comp(poly g, int m)`
-$h(x) = f(g(x)) \equiv [y^{m - 1}] \frac{y^{m - 1}f(y^{-1})}{1 - yg(x)} \pmod {x^m}$
+$h(x) = f(g(x)) \equiv [y^{0}] \frac{f(y^{-1})}{1 - yg(x)} \pmod {x^m}$
 
 ## 多项式复合逆 `revert(int m)`
 
 
 # Todo:
-1. 多项式多点求值
-2. 多项式快速插值
-3. 多项式复合
+1. 多项式复合
 4. 多项式复合逆
 5. 多项式平移
 6. 常系数齐次线性递推 Bostan–Mori
