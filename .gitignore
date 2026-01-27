@@ -34,6 +34,7 @@
 
 # 编译产生的日志
 *.log
+*.err
 
 # Visual Studio 相关
 *.pdb
