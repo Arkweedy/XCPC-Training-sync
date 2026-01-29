@@ -475,7 +475,7 @@ public:
         return ((*this) * b).shift(-(n - 1));
     }
 
-    vector<int> eval(vector<int> x)const 
+    vector<int> eval(vector<int> x)
     {
         if(this->size() == 0){
             return vector<int>(x.size(), 0);
@@ -515,7 +515,7 @@ public:
             self(self, f.mulT(m[p * 2]).trunc(r - mid), mid + 1, r, p * 2 + 1);
             return;
         };
-        work(work, mulT(m[1].inv(n)).trunc(n), 0, n - 1, 1);
+        work(work, this->mulT(m[1].inv(n)).trunc(n), 0, n - 1, 1);
         return ans;
     }
 
@@ -1020,7 +1020,21 @@ namespace compositon{
 
 void solve()
 {
-    
+    int n, m;
+    cin >> n >> m;
+    poly f(n + 1);
+    for(int i = 0;i <= n;i++){
+        cin >> f[i];
+    }
+    poly x(m);
+    for(int i = 0;i < m;i++){
+        cin >> x[i];
+    }
+    auto v = f.eval(x);
+    for(int i = 0;i < m;i++){
+        cout << v[i] << "\n";
+    }
+    return;
 }
 
 int main()

@@ -28,53 +28,43 @@ void solve()
         cout << 0 << endl;
         return;
     }
-    vector<int>fac(n * 2 + 1), invfac(n * 2 + 1);
+    vector<int>fac(n + 1), invfac(n + 1);
     fac[0] = invfac[0] = 1;
-    for(int i = 1;i <= n * 2;i++){
+    for(int i = 1;i <= n;i++){
         fac[i] = 1ll * fac[i - 1] * i % P;
     }
-    invfac[n * 2] = power(fac[n], P - 2);
-    for(int i = n * 2 - 1;i >= 1;i--){
+    invfac[n] = power(fac[n], P - 2);
+    for(int i = n - 1;i >= 1;i--){
         invfac[i] = 1ll * invfac[i + 1] * (i + 1) % P;
+    }
+
+    if(m == n){
+        cout << 1ll * fac[n - 1] * invfac[2] % P << "\n";
+        return;
     }
 
     auto binom = [&](int n, int m)->int
     {
         return 1ll * fac[n] * invfac[m] % P * invfac[n - m] % P;
     };
+    i64 k = n - m;
 
-    vector<int>f{1};
-    auto add = [&]()->void
+    auto A = [&](int i)->int
     {
-        int m = f.size();
-        f.resize(m + 2);
-        for(int i = m + 1;i >= 0;i--){
-            i64 v = 0;
-            if(i > 0)v += 2 * f[i - 1];
-            if(i > 1)v -= f[i - 2];
-            v = (v % P + P) % P;
-            f[i] = v;
-        }
-        // for(auto x : f){
-        //     cerr << x << " ";
-        // }
-        // cerr << endl;
-        return;
+        return binom(k + i - 1, i);
     };
-
-    int k = n - m;
-    for(int i = 0;i < k;i++){
-        add();
-    }
+   
     i64 ans = 0;
-    f.resize(n + 1);
-    for(int i = 0;i <= n;i++){
-        ans = (ans + 1ll * binom(k + i - 1, i) * f[n - i]) % P;
+    int k2 = power(2, k);
+    int i2 = (P + 1) / 2;
+    for(int i = 0;i <= min(n - k, k);i++){
+        ans = (ans + 1ll * binom(k, i) * k2 % P * (i % 2 == 0 ? 1 : P - 1) % P * A(n - k - i)) % P;
+        k2 = 1ll * k2 * i2 % P;
     }
-    ans = 1ll * ans * power(power(2, k), P - 2);
+    ans = 1ll * ans * power(power(2, k), P - 2) % P;
     ans = 1ll * ans * fac[n] % P;
-    
-    cout << ans << endl;
+    ans = 1ll * ans * invfac[k] % P;
+    cout << ans << "\n";
     return;
 }
 
