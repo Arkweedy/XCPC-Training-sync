@@ -26,7 +26,7 @@ void solve() {
         cout << 6 << '\n';
     } else if (c.size() == 1) {
         int x = c[0];
-        //ll res = 1ll * n * n / 2 - 1ll * (x - 2) * (x - 2) / 2 - 1ll * (n - x) * (n - x) / 2;
+        ll res = 1ll * n * n / 2 - 1ll * (x - 2) * (x - 2) / 2 - 1ll * (n - x) * (n - x) / 2;
         cout << res << '\n';
     } else {
         cout << 1ll * n * (n + 1) / 2 << '\n';
