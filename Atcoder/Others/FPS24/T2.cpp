@@ -547,57 +547,31 @@ using poly = Poly<P>;
 void solve()
 {
     int n;
-    ll t;
+    i64 t;
     cin >> n >> t;
-    vector<int>a(n);
-    Z sum = 0;
+    vector<Z>a(n);
     for(int i = 0;i < n;i++){
         cin >> a[i];
-        sum += a[i];
     }
-    poly f(n), h(n);
-    poly tr(n);
+    // A_i(x) = -\sum_{j = 1} (-a_i x)^j = \frac{a_i x}{1 + a_i x}
+    // R(x) = \sum_{i = 1} A_i(x)
+    // F(x) = \sum_{i = 1} R(x)^i = \frac{R(x)}{1 - R(x)}
 
-    f[0] = 1;
-    for(int i = 0;i < n;i++){
-        f[i] /= a[i];
-        tr[i] = a[i];
-    }
-
-    for(int i = 1;i < n;i++){
-        h[i] = 1;
-    }
-
-    
-    auto L = [&](poly f)->poly
+    auto build = [&](auto&&self, int l, int r)->pair<poly,poly>
     {
-        for(int i = 0;i < n;i++){
-            f[i] *= tr[i];
-        }
-        return f;  
+        if(l == r)return {poly{0, a[l]}, poly{1, a[l]}};
+        int m = l + r >> 1;
+        auto [lP, lQ] = self(self, l, m);
+        auto [rP, rQ] = self(self, m + 1, r);
+        poly P = lP * rQ + rP * lQ, Q = lQ * rQ;
+        return {P, Q};
     };
-
-    auto mul = [&](poly f, poly& g)->poly // mul at mod x^n-1
-    {
-        auto h = f * g;
-        for(int i = n;i < h.size();i++){
-            h[i - n] += h[i];
-        }
-        h.resize(n);
-        return h;
-    };
-
-    for(int i = 0;i < t;i++){
-        f = mul(L(f), h);
-        for(int i = 0;i < n;i++){
-            cerr << f[i] << " ";
-        }
-        cerr << endl;
-    }
-    Z ans = f[0];
+    auto [rP, rQ] = build(build, 1, n - 1);
+    poly fP = rP, fQ = rQ - rP;
+    poly P = fP, Q = fQ - fP.shift(1) * a[0];
+    Z ans = linearRecurrence(P, Q, t - 1);
     cout << ans << endl;
     return;
-
 }
 
 int main()

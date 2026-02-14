@@ -5,7 +5,7 @@ $$f_{k,i} = \sum_{j = 1}^{n - 1}f_{k - 1,i + j \bmod n} a_i\\
 令
 $$F = \sum_{n} \frac{f_n}{a_n}x^n$$
 $$G = \sum_{n} f_n x^n$$
-$$H = \sum_{i = 1}^n x^i$$
+$$H = \sum_{i = 1}^{n-1} x^i$$
 
 那么有
 $$F_k = G_{k - 1}H \mod x^n - 1$$
