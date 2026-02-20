@@ -66,7 +66,7 @@ void solve()
     iota(id.begin(),id.end(), 0);
     sort(id.begin(),id.end(), [&](int i, int j)->bool
     {
-        return qry[i].second == qry[j].second ? qry[i].second < qry[j].second : qry[i].first < qry[j].first;
+        return qry[i].second == qry[j].second ? qry[i].first < qry[j].first : qry[i].second < qry[j].second ;
     });
     //i < j < k
     // a = lcm/i, b, c
@@ -74,7 +74,7 @@ void solve()
     // neg : 2 3 4, 2 3 5
 
     // ans = \binom{r - l + 1}{3} - [lcm = max] - [2 2 odd] - [2 3 3] - [2 3 4]
-    constexpr int N = 1e5;
+    constexpr int N = 2e5;
     Fenwick<i64> t(N + 1);
     vector<vector<int>>fac(N + 1);
     for(int i = 1;i <= N;i++){
@@ -94,6 +94,7 @@ void solve()
     vector<i64>ans(q);
     for(int i = 0;i < q;i++){
         auto [l, r] = qry[id[i]];
+        //cerr << l << " " << r << endl;
         while(p <= r){
             add(p);
             p++;
@@ -102,7 +103,7 @@ void solve()
         i64 res = n * (n - 1) * (n - 2) / 6;
         // 2 3 4 -> 6 4 3
         {
-            int a = (l + 1) / 3, b = r / 6;
+            int a = (l + 3 - 1) / 3, b = r / 6;
             if(a <= b && a != 0)res -= b - a + 1;
         }
         // 2 3 5 -> 6, 10, 15

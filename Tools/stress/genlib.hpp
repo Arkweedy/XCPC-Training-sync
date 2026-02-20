@@ -742,7 +742,7 @@ inline void print_wedges(std::ostream& os,
 inline void print_graph(std::ostream& os,
                         int n,
                         const std::vector<graph::edge>& edges,
-                        bool with_header = true,
+                        bool with_header = false,
                         char end_each = '\n') {
     if (with_header) os << n << ' ' << edges.size() << '\n';
     print_edges(os, edges, end_each);
