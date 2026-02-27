@@ -8,6 +8,11 @@ void solve() {
     i64 s, m;
     std::cin >> s >> m;
 
+    if (m % 2 == 0 && s % 2 == 1) {
+        std::cout << -1 << "\n";
+        return;
+    }
+
     auto len = [&](i64 x) -> int {
         int res = 0;
         while (x) {
@@ -40,28 +45,29 @@ void solve() {
 
     auto check = [&](i64 x) -> bool {
         std::vector<i64> cnt(n);
-        int pos = m % 2 == 1 ? 0 : next[0];
+        int pos = s % 2 == 1 ? 0 : next[0];
         for (int i = 0; i < lens; i++) {
             if (ds[i] == 1) {
-                if(pos > i)return false;
                 i64 ncnt = (1LL << (i - pos)); 
-                while (cnt[pos] + ncnt > x){
-                    if (next[pos] > std::min(lenm, i)) {
-                        return false;
-                    } else {
+                while (pos <= i){
+                    if (cnt[pos] + ncnt > x) {
                         ncnt -= (x - cnt[pos]);
                         ncnt = (ncnt + (1LL << (next[pos] - pos)) - 1) / (1LL << (next[pos] - pos));
                         pos = next[pos];
+                    } else {
+                        cnt[pos] += ncnt;
+                        ncnt = 0;
+                        break;
                     }
                 }
-                cnt[pos] += ncnt;
+                if(ncnt > 0)return false;
             }
         }
 
         return true;
     };    
 
-    i64 l = 1, r = s, ans = 0;
+    i64 l = 1, r = s + 10, ans = 0;
     while (l <= r) {
         i64 mid = (l + r) / 2;
         if (check(mid)) {
