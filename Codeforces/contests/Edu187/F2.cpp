@@ -14,60 +14,41 @@ void solve()
 {
     int n;
     cin >> n;
-    // n -> n-1/2 -> ...
-    vector<pair<int,int>>v;
-    vector<int>cnt(n + 1);
-    int l = n, r = n;
-    int lc = 1, rc = 0;
-    v.emplace_back(n, 1);
-    cnt[n] = 1;
-    while(l != 0){
-        int a = (l - 1) / 2, b = l / 2;
-        int c = (r - 1) / 2, d = r / 2;
-        l = a, r = d;
-        if(l == r){
-            lc = lc + rc;
-            rc = 0;
-            v.emplace_back(l, lc);
-            cnt[l] = lc;
-        }
-        else{
-            int nlc = lc, nrc = rc;
-            if(b == l)nlc += lc;
-            else nrc += lc;
-            if(c == l)nlc += rc;
-            else nrc += rc;
-            lc = nlc;
-            rc = nrc;
-            v.emplace_back(l, lc);
-            v.emplace_back(r, rc);
-            cnt[l] = lc;
-            cnt[r] = rc;
-        }
-    }
-    reverse(v.begin(),v.end());
-    assert(v[0].first == 1);
+    vector<int>lsz(n + 1), rsz(n + 1);
+    vector<int>fa(n + 1);
 
-    vector<int>ans(n + 1);
-    map<int,map<int,int>>mp;
-    mp[1][1] = 1;
-
-    auto merge = [&](map<int,int>& a, map<int,int>& b)->map<int, int>
+    auto build = [&](auto&&self, int l, int r)->int
     {
-
+        if(l > r)return 0;
+        else if(l == r)return l;
+        int m = l + r >> 1;
+        lsz[m] = m - l;
+        rsz[m] = r - m;
+        fa[self(self, l, m - 1)] = fa[self(self, m + 1, r)] = m;
+        return m;
     };
 
-    for(int i = 1;i < v.size();i++){
-        auto [k, c] = v[i];
-        int l = (k - 1) / 2, r = k / 2;
-        // for(l) for(r) ?
-        for(auto [x, c1] : mp[l]){
-            for(auto [y, c2] : mp[r]){
-                ans[x + y] = (ans[x + y] + 1ll * c1 * c2) % P;
-            }
+    build(build, 1, n);
+
+    unordered_map<int,int>mp;
+    vector<i64>ans(n + 1);
+
+    for(int i = 1;i <= n;i++){
+        for(auto [k, c] : mp){
+            ans[k + lsz[i] + 2] += c;
         }
-        mp[k] = merge(mp[l], mp[r]);
+        mp[rsz[i]]++;
+        for(int j = fa[i];j != 0;j = fa[j]){
+            if(j > i)ans[lsz[j] + rsz[i] + 2]--;
+            else ans[rsz[j] + lsz[i] + 2]--;
+            ans[abs(j - i)]++;
+        }
     }
+    for(int i = n;i >= 0;i--){
+        cout << ans[i] << " ";
+    }
+    //cout << endl;
+    return;
 }
 
 int main()
@@ -75,7 +56,7 @@ int main()
     std::ios::sync_with_stdio(0);
     std::cin.tie(0);
     int tt = 1;
-    cin >> tt;
+    //cin >> tt;
     while(tt--){
         solve();
     }

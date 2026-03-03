@@ -1,97 +1,51 @@
-// Code by Whalica
-#include <bits/stdc++.h>
-
+#include<bits/stdc++.h>
 using i64 = long long;
+using u32 = unsigned int;
 using u64 = unsigned long long;
+using i128 = __int128;
 
-void solve() {
-    i64 s, m;
-    std::cin >> s >> m;
+using namespace std;
 
-    auto len = [&](i64 x) -> int {
-        int res = 0;
-        while (x) {
-            res++;
-            x >>= 1;
-        }
-        return res;
-    };
+//1736E.cpp Create time : 2026.02.28 15:01
 
-    int lens = len(s), lenm = len(m);
-    int n = std::max(lens, lenm);
-    std::vector<int> ds(n), dm(n);
-    for (int i = 0; i < n; i++) {
-        ds[i] = (s >> i & 1);
+void solve()
+{
+    int n;
+    cin >> n;
+    vector<int>a(n + 1);
+    for(int i = 1;i <= n;i++){
+        cin >> a[i];
     }
-    for (int i = 0; i < n; i++) {
-        dm[i] = (m >> i & 1);
-    }
-    dm.push_back(0);
-
-    std::vector<int> next(n + 1);
-    next[n] = 1E9;
-    for (int i = n; i >= 1; i--) {
-        if (i < lenm && dm[i] == 1) {
-            next[i - 1] = i;
-        } else {
-            next[i - 1] = next[i];
-        }
-    }
-
-    auto check = [&](i64 x) -> bool {
-        std::vector<i64> cnt(n);
-        int pos = m % 2 == 1 ? 0 : next[0];
-        for (int i = 0; i < lens; i++) {
-            if (ds[i] == 1) {
-                if(pos > i)return false;
-                i64 ncnt = (1LL << (i - pos)); 
-                while (cnt[pos] + ncnt > x){
-                    if (next[pos] > std::min(lenm, i)) {
-                        return false;
-                    } else {
-                        ncnt -= (x - cnt[pos]);
-                        ncnt = (ncnt + (1LL << (next[pos] - pos)) - 1) / (1LL << (next[pos] - pos));
-                        pos = next[pos];
+    vector<vector<int>>dp(n + 1, vector<int>(n + 1));
+    for(int i = 0;i < n;i++){
+        for(int j = 0;j <= i;j++){// dp[i][j]
+            for(int k = i + 1;k <= n;k++){
+                int x = k - i - 1;//move to a[i + 1] steps
+                if(x <= i + 1 - j){
+                    for(int p = i + 1;p <= n;p++){// a line 
+                        dp[p][j + x + p - i - 1] = max(dp[p][j + x + p - i - 1], dp[i][j] + a[k] * (p - i));
                     }
                 }
-                cnt[pos] += ncnt;
+                else break;
             }
         }
-
-        return true;
-    };    
-
-    i64 l = 1, r = s, ans = 0;
-    while (l <= r) {
-        i64 mid = (l + r) / 2;
-        if (check(mid)) {
-            ans = mid;
-            r = mid - 1;
-        } else {
-            l = mid + 1;
-        }
     }
-    if(ans == 0)std::cout << -1 <<"\n";
-    else std::cout << ans << "\n";
+    int ans = 0;
+    for(int i = 0;i <= n;i++){
+        ans = max(ans, dp[n][i]);
+    }
+    cout << ans << endl;
+    return;
 }
 
-/*
-最高位有 1 的情况下，低位 1 可以匹配 0/1，0 只能匹配 0
-
-如果 m 是奇数，那么一定有元素 1，一定可以成功
-否则不一定
-*/
-
-int main() {
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-
-    int t = 1;
-    std::cin >> t;
-
-    while (t--) {
+int main()
+{
+    std::ios::sync_with_stdio(0);
+    std::cin.tie(0);
+    int tt = 1;
+    //cin >> tt;
+    while(tt--){
         solve();
     }
-
     return 0;
 }
