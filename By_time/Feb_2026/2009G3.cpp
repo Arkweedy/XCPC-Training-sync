@@ -138,7 +138,7 @@ void solve()
     int len = __lg(m) + 1;
     vector<vector<int>>p(len, vector<int>(m));
     for(int i = 0;i < m;i++){
-        p[0][i] = i;
+        p[0][i] = i; 
     }
 
     auto minp = [&](int x, int y)->int

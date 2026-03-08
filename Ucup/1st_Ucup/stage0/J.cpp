@@ -29,39 +29,41 @@ void solve()
     vector<int>vs(n * 2);
     vector<int>get(n * 2);
     vector<pair<int,int>>ans;
-
-    auto dfs = [&](auto&&self, int p, int eid)->int
+    int match = 1;
+    auto dfs = [&](auto&&self, int p, int eid)->void
     {
         vs[p] = 1;
-        vector<int>buf;
+        vector<int>e;
         for(auto [s, id] : g[p]){
             if(!vs[s]){
-                if(self(self, s, id))buf.push_back(id);
+                self(self, s, id);
             }
-            else if(id != eid && !get[id]){
-                buf.push_back(id);
+            if(id != eid && !get[id]){
+                e.push_back(id);
+                get[id] = 1;
             }
         }
-        for(int i = 0;i + 1 < buf.size();i += 2){
-            ans.emplace_back(buf[i], buf[i + 1]);
-            get[buf[i]] = get[buf[i + 1]] = 1;
+        if(e.size() % 2 == 1){
+            if(eid == -1){
+                match = 0;
+                return;
+            }
+            else{
+                e.push_back(eid);
+                get[eid] = 1;
+            }
         }
-        if(buf.size() % 2 == 0)return 1;
-        else{
-            ans.emplace_back(eid, buf.back());
-            get[buf.back()] = get[eid] = 1;
-            return 0;
+        for(int i = 0;i + 1 < e.size();i += 2){
+            
+            ans.emplace_back(e[i], e[i + 1]);
         }
+        return;
     };
 
-    int match = 1;
+    
     for(int i = 0;i < n * 2;i++){
         if(!vs[i]){
-            int ok = dfs(dfs, i, -1);
-            if(!ok){
-                match = 0;
-                break;
-            }
+            dfs(dfs, i, -1);
         }
     }
     
