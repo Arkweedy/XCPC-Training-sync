@@ -18,13 +18,10 @@ void solve()
         cin >> a[i];
         sum -= a[i];
     }
-    //a[0] = a[n + 1] = h;
     vector<i64>pa(n + 2);
     for(int i = 1;i <= n + 1;i++){
         pa[i] = pa[i - 1] + a[i];
     }
-
-    
 
     vector<int>pre(n + 2), suf(n + 2);
     vector<int>stk;
@@ -52,8 +49,6 @@ void solve()
         stk.pop_back();
     }
 
-    //cerr << "ok" << endl;
-
     vector<i64>sx(n + 2),px(n + 2);
     for(int i = n;i >= 1;i--){
         sx[i] = sx[suf[i]] + 1ll * (suf[i] - i) * a[i] - (pa[suf[i] - 1] - pa[i - 1]);
@@ -61,18 +56,6 @@ void solve()
     for(int i = 1;i <= n;i++){
         px[i] = px[pre[i]] + 1ll * (i - pre[i]) * a[i] - (pa[i] - pa[pre[i]]);
     }
-
-    // for(int i = 1;i <= n;i++){
-    //     cerr << px[i] << " ";
-    // }
-    // cerr << endl;
-
-    // for(int i = 1;i <= n;i++){
-    //     cerr << sx[i] << " ";
-    // }
-    // cerr << endl;
-
-
     
     int len = __lg(n) + 1;
     vector<vector<int>>p(len, vector<int>(n + 1));
@@ -84,8 +67,6 @@ void solve()
     {
         return a[x] > a[y] ? x : y;
     };
-
-    
 
     for(int i = 1;i < len;i++){
         for(int j = 1;(j + (1 << i) - 1) <= n;j++){
@@ -107,10 +88,8 @@ void solve()
     for(int i = 1;i + 1 <= n;i++){
         for(int j = i + 1;j <= n;j++){
             int p = rmq(i, j);
-            
             i64 res = px[i] + sx[j] + (sx[i] - sx[p]) + (px[j] - px[p]);
             ans = min(ans, res);
-            //cerr << i << ' ' << j << " " << p  << " " << res << endl;
         }
     }
     cout << sum - ans << endl;

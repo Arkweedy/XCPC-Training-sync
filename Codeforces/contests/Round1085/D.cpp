@@ -44,6 +44,7 @@ void solve()
         for(auto s : g[p]){
             if(s != fa){
                 self(self, s, p);
+                // can O(k)
                 for(int i = 0;i < 2;i++){
                     int x = dp[s][i] + 1;
                     for(int j = 0;j < 2;j++){
@@ -59,10 +60,6 @@ void solve()
         return;
     };
     dfs(dfs, rt, -1);
-
-    // for(int i = 0;i < n;i++){
-    //     cerr << isl[i] << " " << dp[i][0] << " " << dp[i][1] << endl;
-    // }
 
     if(isl[rt]){
         cout << "Yes" << endl;
