@@ -6,7 +6,7 @@ using i128 = __int128;
 
 using namespace std;
 
-//1854C.cpp Create time : 2026.03.03 22:17
+//B.cpp Create time : 2026.03.09 20:29
 
 template<class T>
 constexpr T power(T a, i64 b) {
@@ -127,6 +127,7 @@ struct MInt {
 template<>
 //i64 MInt<0>::Mod = 998244353;
 i64 MInt<0>::Mod = 1000000007;
+
 using Z = MInt<0>;
 
 struct Comb {
@@ -176,40 +177,26 @@ struct Comb {
     }
 } comb;
 
-
-
 void solve()
 {
-    int n, m;
-    cin >> n >> m;
+    int n;
+    cin >> n;
     vector<int>a(n);
     for(int i = 0;i < n;i++){
         cin >> a[i];
     }
-    sort(a.begin(),a.end());
+    vector<Z>h(n + 1);
+    for(int i = 1;i <= n;i++){
+        h[i] = h[i - 1] + comb.inv(i);
+    }
+
     Z ans = 0;
     for(int i = 0;i < n;i++){
-        ans += m - a[i] + 1;
-    }
-    for(int i = 0;i < n - 1;i++){
-        int d = a[i + 1] - a[i];
-        //vector<Z>c(m);
-        for(int j = 0;j + a[i + 1] <= m + 1;j++){
-            // Z cnt = comb.binom(d + j + j, d + j);
-            // for(int k = 0;k < j; k++){
-            //     cnt -= c[k] * comb.binom(j * 2 - k * 2, j - k);
-            // }
-            // c[j] = cnt;
-            Z cnt = comb.binom(j * 2 + d - 2, j - 1) - comb.binom(j * 2 + d - 2, j - 1 - 1);
-            if(j == 0)cnt = 1;
-            Z p = cnt * power(Z(2), d + j * 2).inv();
-            ans -= (m - (a[i + 1] + j) + 1) * p;
-        }
+        ans += a[i] * comb.fac(n) * (h[i + 1] + h[n - i] - 1);
     }
     cout << ans << endl;
     return;
 }
-
 
 int main()
 {

@@ -29,19 +29,13 @@ void solve()
             stk.pop_back();
         }
         ls[i] = la;
+        if(!stk.empty()){
+            rs[stk.back()] = i;
+        }
         stk.push_back(i);
     }
     rt = stk[0];
     stk.clear();
-    for(int i = n - 1;i >= 0;i--){
-        int la = -1;
-        while(!stk.empty() && a[i] > a[stk.back()]){
-            la = stk.back();
-            stk.pop_back();
-        }
-        rs[i] = la;
-        stk.push_back(i);
-    }
 
     vector<i64>dp1(n), dp2(n);
     auto dfs1 = [&](auto&&self, int p)->void
