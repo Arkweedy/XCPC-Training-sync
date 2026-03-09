@@ -12,6 +12,9 @@ void solve()
 {
     int n;
     cin >> n;
+    int rt, k;
+    cin >> k >> rt;
+    rt--;
     vector<vector<int>>g(n);
     for(int i = 0;i < n - 1;i++){
         int u, v;
@@ -23,15 +26,51 @@ void solve()
     }
 
     vector<int>isl(n);
-    vector<int>nlf(n);
     for(int i = 0;i < n;i++){
         if(g[i].size() == 1){
             isl[i] = 1;
-            nei[g[i][0]] = 1;
         }
     }
 
+    constexpr int inf = 1e9;
+    vector<array<int,2>>dp(n, {inf, inf});
     
+    auto dfs = [&](auto&&self, int p, int fa)->void
+    {
+        if(isl[p]){
+            dp[p] = {0, inf};
+            return;
+        }
+        for(auto s : g[p]){
+            if(s != fa){
+                self(self, s, p);
+                for(int i = 0;i < 2;i++){
+                    int x = dp[s][i] + 1;
+                    for(int j = 0;j < 2;j++){
+                        if(x < dp[p][j])swap(x, dp[p][j]);
+                    }
+                }
+            }
+        }
+        if(dp[p][0] + dp[p][1] < k + 2){
+            dp[p] = {0, inf};
+            isl[p] = 1;
+        }
+        return;
+    };
+    dfs(dfs, rt, -1);
+
+    // for(int i = 0;i < n;i++){
+    //     cerr << isl[i] << " " << dp[i][0] << " " << dp[i][1] << endl;
+    // }
+
+    if(isl[rt]){
+        cout << "Yes" << endl;
+    }
+    else{
+        cout << "No" << endl;
+    }
+    return;
 }
 
 int main()
