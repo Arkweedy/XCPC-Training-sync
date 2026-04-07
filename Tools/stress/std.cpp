@@ -1,50 +1,52 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+
 using i64 = long long;
-using u32 = unsigned int;
-using u64 = unsigned long long;
-using i128 = __int128;
 
-using namespace std;
+constexpr int inf = 1E9;
 
-//A2.cpp Create time : 2026.04.02 20:35
-
-void solve()
-{
+int main() {
+    std::ios::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+    
     int n;
-    cin >> n;
-    auto check = [&](int x)->int
-    {   
-        int o = 0, z = 0;
-        while(x != 0){
-            if(x % 2 == 0){
-                z++;
+    std::cin >> n;
+    
+    std::vector<int> a(n + 1);
+    for (int i = 0; i < n; i++) {
+        std::cin >> a[i];
+    }
+    
+    std::vector dp(n + 1, std::vector<int>(n + 2, -inf));
+    dp[0][1] = 0;
+    
+    for (int i = 0; i < n; i++) {
+        for (int k = 1; k <= i + 1; k++) {
+            int t = -inf;
+            for (int j = 0; j <= n; j++) {
+                t = std::max(t, dp[j][k]);
             }
-            else{
-                o++;
+            for (int j = i + 1; j < n && j - i <= k; j++) {
+                dp[j][k - (j - i)] = std::max(dp[j][k - (j - i)], t);
             }
-            x /= 2;
         }
-        return o == z;
-    };
-
+        for (int k = i + 1; k >= 0; k--) {
+            for (int j = n - 1; j >= 0; j--) {
+                dp[j][k] += a[j];
+                if (j <= i) {
+                    dp[i + 1][k + 1] = std::max(dp[i + 1][k + 1], dp[j][k]);
+                }
+                dp[n][k + 1] = std::max(dp[n][k + 1], dp[j][k]);
+            }
+        }
+    }
+    
     int ans = 0;
-    for(int i = 0;i < n;i++){
-        int x;
-        cin >> x;
-        ans += check(x);
+    for (int j = 0; j <= n; j++) {
+        for (int k = 0; k <= n + 1; k++) {
+            ans = std::max(ans, dp[j][k]);
+        }
     }
-    cout << ans << endl;
-    return;
-}
-
-int main()
-{
-    std::ios::sync_with_stdio(0);
-    std::cin.tie(0);
-    int tt = 1;
-    //cin >> tt;
-    while(tt--){
-        solve();
-    }
+    std::cout << ans << "\n";
+    
     return 0;
 }
