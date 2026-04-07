@@ -30,6 +30,6 @@ int main() {
 			cnt++;
 		
 	}
-	printf("%d\n", cnt);
+	printf("%d", cnt);
 	return 0;
 }

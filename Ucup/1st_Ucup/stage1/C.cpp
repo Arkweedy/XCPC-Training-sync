@@ -35,7 +35,6 @@ void solve()
         }
     }
 
-
     int v = sa[0] - d, l = 0, r = 1; //pointer to next
     // v -> left value
     int ldelta = 0, rdelta = 0;
@@ -44,9 +43,12 @@ void solve()
     }
     i64 ans = 0;
     i64 res = 0;
-    while(l < m){
-        cerr << l << " " << r << endl;
+    while(l < m && r < m){
         int nv = min(sa[l], sa[r] - d);
+        res += 1ll * (ldelta + rdelta) * (nv - v);
+        ans = max(ans, res);
+        v = nv;
+
         if(r == m){
             ldelta += c[l++];
         }
@@ -60,8 +62,6 @@ void solve()
             ldelta += c[l++];
             rdelta -= c[r++];
         }
-        res += 1ll * (ldelta - rdelta) * (nv - v);
-        ans = max(ans, res);
     }
     cout << ans << endl;
     return;
