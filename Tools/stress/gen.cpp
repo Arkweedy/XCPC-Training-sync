@@ -6,6 +6,10 @@ mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    cout << "3\n6\n14 22 33 11 25 36\n4\n100 10 98 12\n4\n1 3 5 7" << endl;
+    constexpr int P = 998244353;
+    cout << 50 << endl;
+    for(int i = 0;i < 50;i++){
+        cout << gen::rnd::rand_u32(1, P - 1) % P << endl;
+    }
     return 0;
 }
