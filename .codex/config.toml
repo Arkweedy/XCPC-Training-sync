@@ -1,0 +1,5 @@
+# Optional Codex project configuration.
+# Keep this file intentionally minimal at first.
+#
+# The repo-level AGENTS.md and .agents/skills/ directory are the main integration points.
+# Add concrete Codex config only after repeated workflow friction appears.
