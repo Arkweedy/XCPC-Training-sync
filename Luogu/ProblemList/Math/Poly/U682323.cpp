@@ -7,7 +7,7 @@ using ull = unsigned long long;
 using namespace std;
 
 //polys.cpp Create time : 2026.01.13 22:21
-constexpr int P = 998244353;
+constexpr int P = 99824453;
 constexpr int G = 3;
 
 int power(int a, int p)
@@ -1022,15 +1022,19 @@ void solve()
 {
     int n;
     cin >> n;
-    poly f(n);
+    i64 base = 1;
+    int sum = 0;
     for(int i = 0;i < n;i++){
-        cin >> f[i];
+        int x;
+        cin >> x;
+        base = base * x % P;
+        sum += x;
     }
-    auto g = f.sqrt(n);
-    for(int i = 0;i < n;i++){
-        cout << g[i] << " ";
+    for(int i = 0;i <= sum - n;i++){
+        cout << base * comb.binom(sum - n, i) % P << " ";
     }
     cout << endl;
+    return;
 }
 
 int main()

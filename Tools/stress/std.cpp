@@ -6,35 +6,104 @@ using i128 = __int128;
 
 using namespace std;
 
-//I2.cpp Create time : 2026.04.08 13:36
+//C.cpp Create time : 2026.05.16 22:48
 
-constexpr i64 MOD = 998244353;
+
 
 void solve()
 {
-    i64 x;
-    cin >> x;
+    i64 a, n;
+    cin >> a >> n;
+    vector<int>c(10);
+    int ma = 0, mi = 9;
+    for(int i = 0;i < n;i++){
+        int x;
+        cin >> x;
+        c[x] = 1;
+        ma = max(ma, x);
+        mi = min(mi, x);
+    }
 
-    i64 best_p = 0;
-    i64 best_q = 1;
-    i64 best_sum = 1;
-
-    if(x != 0){
-        best_p = x;
-        best_q = 1;
-        best_sum = best_p + best_q;
-
-        for(i64 q = 2; q < MOD && q < best_sum; q++){
-            i64 p = q * x % MOD;
-            if(p + q < best_sum){
-                best_sum = p + q;
-                best_p = p;
-                best_q = q;
-            }
+    vector<int>l(10, -1), r(10, -1);
+    int p = -1;
+    for(int i = 0;i < 10;i++){
+        l[i] = p;
+        if(c[i]){
+            p = i;
+        }
+    }
+    p = -1;
+    for(int i = 9;i >= 0;i--){
+        r[i] = p;
+        if(c[i]){
+            p = i;
         }
     }
 
-    cout << best_p << ' ' << best_q << '\n';
+    vector<i64>d;
+    while(a){
+        d.push_back(a % 10);
+        a /= 10;
+    }
+
+    if(d.empty()){
+        cout << mi << endl;
+        return;
+    }
+
+    d.push_back(0);
+
+    vector<i64>base(d.size() + 1);
+    base[0] = 1;
+    for(int i = 0;i < d.size();i++){
+        base[i + 1] = base[i] * 10;
+    }
+    vector<i64>b2 = base;
+    for(int i = 0;i < d.size();i++){
+        b2[i + 1] += b2[i];
+    }
+    vector<i64>v = d;
+    for(int i = 0;i < d.size() - 1;i++){
+        v[i + 1] = v[i] + base[i + 1] * v[i + 1];
+    }
+
+    auto calc = [&](int x, int k)->i64
+    {
+        if(k == 0)return 0;
+        return b2[k - 1] * x;
+    };
+
+    constexpr i64 inf = 2e18;
+    i64 ans = inf;
+    int lead = 1;
+    for(int i = d.size() - 1;i >= 0;i--){
+       
+        int x = d[i];
+        //cerr <<"#"<< i << " " << x << endl;
+        int lv = l[x];
+        if(lv == -1 && x > 0 && lead)lv = 0;
+        if(lv != -1){
+            i64 lc = base[i] * lv + calc(ma, i);
+            ans = min(ans, v[i] - lc);
+            //cerr <<lc << " " << v[i] << endl;
+        }
+        int rv = r[x];
+        if(rv != -1){
+            i64 rc = base[i] * rv + calc(mi, i);
+            ans = min(ans,  rc - v[i]);
+            //cerr <<rc << " " << v[i] << endl;
+        }
+        if(i == 0 && c[x])ans = 0;
+        if(c[x] || (x == 0 && lead)){
+            //
+        }
+        else{
+            break;
+        }
+        if(x != 0)lead = 0;
+    }
+    cout << ans << endl;
+    return;
 }
 
 int main()

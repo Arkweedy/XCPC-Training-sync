@@ -79,19 +79,16 @@ void solve()
     for(int i = d.size() - 1;i >= 0;i--){
        
         int x = d[i];
-        //cerr <<"#"<< i << " " << x << endl;
         int lv = l[x];
-        if(lv == -1 && x > 0 && lead)lv = 0;
+        if(lv == -1 && x > 0 && lead && i != 0)lv = 0;
         if(lv != -1){
             i64 lc = base[i] * lv + calc(ma, i);
             ans = min(ans, v[i] - lc);
-            //cerr <<lc << " " << v[i] << endl;
         }
         int rv = r[x];
         if(rv != -1){
             i64 rc = base[i] * rv + calc(mi, i);
             ans = min(ans,  rc - v[i]);
-            //cerr <<rc << " " << v[i] << endl;
         }
         if(i == 0 && c[x])ans = 0;
         if(c[x] || (x == 0 && lead)){
