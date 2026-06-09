@@ -113,24 +113,33 @@ void solve()
     }
 
     // k trans
-    vector<int>tr;
+    int milen = n + 1;
     for(int i = 1;i <= n;i++){
         if(a[i] >= k){
-            tr.push_back(i);
+            milen = min(milen, pi[i]);
         }
     }
 
+    int sq = sqrt(n);
     vector<int>dp(n + 1);
+    vector<vector<int>>pdp(sq, {1});// 
     dp[0] = 1;
     for(int i = 1;i <= n;i++){
-        int len = z[i];
-        for(auto x : tr){
-            if(x <= len){
-                dp[i + x - 1] = (dp[i + x - 1] + dp[i - 1]) % P;
-            }
+        int p = i;
+        while(pi[slink[i]] >= milen){
+            
         }
     }
-    cout << dp[n] << endl;
+    // dp[0] = 1;
+    // for(int i = 1;i <= n;i++){
+    //     int len = z[i];
+    //     for(auto x : tr){
+    //         if(x <= len){
+    //             dp[i + x - 1] = (dp[i + x - 1] + dp[i - 1]) % P;
+    //         }
+    //     }
+    // }
+    // cout << dp[n] << endl;
 
     
 
