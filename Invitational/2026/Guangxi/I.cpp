@@ -100,6 +100,9 @@ void solve()
     cin >> s;
     KMP kmp(s);
     auto& pi = kmp.fail;
+    auto& slink = kmp.slink;
+    auto& diff = kmp.diff;
+    auto& fail = kmp.fail;
     auto z = Zfunc1(s);
 
     vector<int>a(n + 1);
@@ -120,28 +123,51 @@ void solve()
         }
     }
 
+    cerr << milen << endl;
+
     int sq = sqrt(n);
     vector<int>dp(n + 1);
-    vector<vector<int>>pdp(sq, {1});// 
+    vector<vector<int>>pdp(sq + 1, vector<int>(n + 1));// diff - d ,presum
+    for(int i = 0;i <= sq;i++){
+        pdp[i][0] = 1;
+    }
+    auto get = [&](int d, int l, int r)->int
+    {
+        assert((r - l) % d == 0);
+        int res = pdp[d][r];
+        if(l > 0)res = (res - pdp[d][l - 1] + P) % P;
+        return res;
+    };
+
+    for(int i = 0;i <= n;i++){
+        cerr << slink[i] << " " << pi[i] << endl;
+    }
+
     dp[0] = 1;
     for(int i = 1;i <= n;i++){
         int p = i;
-        while(pi[slink[i]] >= milen){
-            
+        while(p > 0 && pi[slink[p]] >= milen){
+            //cerr << p << " " << slink[p]<< endl;
+            int l = i - p, r = i - slink[p], d = diff[p];
+            //cerr << l << " " << r << " " << d << endl;
+            dp[i] = (dp[i] + get(d, l, r)) % P;
+            //cerr << "OK" << endl;
+            p = fail[slink[p]];
+        }
+        if(p > 0 && p >= milen){
+            int d = diff[p], l = i - p, r = i - ((i - milen) / p * p);
+            dp[i] = (dp[i] + get(d, l, r)) % P;
+        }
+
+        cerr << dp[i] << " ";
+
+        for(int j = 1;j <= sq;j++){
+            pdp[j][i] = dp[i];
+            if(i >= j)pdp[j][i] = (pdp[j][i] + pdp[j][i - j]) % P;
         }
     }
-    // dp[0] = 1;
-    // for(int i = 1;i <= n;i++){
-    //     int len = z[i];
-    //     for(auto x : tr){
-    //         if(x <= len){
-    //             dp[i + x - 1] = (dp[i + x - 1] + dp[i - 1]) % P;
-    //         }
-    //     }
-    // }
-    // cout << dp[n] << endl;
-
     
+    cout << dp[n] << endl;
 
     return;
 }
