@@ -114,7 +114,6 @@ void solve()
             a[i] = a[pi[i]] + 1;
         }
     }
-
     // k trans
     int milen = n + 1;
     for(int i = 1;i <= n;i++){
@@ -123,43 +122,67 @@ void solve()
         }
     }
 
-    cerr << milen << endl;
-
     int sq = sqrt(n);
     vector<int>dp(n + 1);
     vector<vector<int>>pdp(sq + 1, vector<int>(n + 1));// diff - d ,presum
     for(int i = 0;i <= sq;i++){
         pdp[i][0] = 1;
     }
-    auto get = [&](int d, int l, int r)->int
+    auto getL = [&](int d, int l, int r)->int // [l, r)
     {
+        //cerr << "add " << l << " " << r << " " << " d = " << d << endl;
         assert((r - l) % d == 0);
-        int res = pdp[d][r];
-        if(l > 0)res = (res - pdp[d][l - 1] + P) % P;
-        return res;
+        if(d <= sq){
+            if(r < d)return 0;
+            if(l < d)return pdp[d][r - d];
+            int res = (pdp[d][r - d] - pdp[d][l - d] + P) % P;
+            return res;
+        }
+        else{
+            int res = 0;
+            for(int i = l;i < r;i += d){
+                res = (res + dp[i]) % P;
+            }
+            return res;
+        }
     };
 
-    for(int i = 0;i <= n;i++){
-        cerr << slink[i] << " " << pi[i] << endl;
-    }
+    auto getLR = [&](int d, int l, int r)->int // [l, r]
+    {
+        //cerr << "addLR " << l << " " << r << " " << " d = " << d << endl;
+        assert((r - l) % d == 0);
+        if(d <= sq){
+            if(r < 0)return 0;
+            if(l < d)return pdp[d][r];
+            int res = (pdp[d][r] - pdp[d][l - d] + P) % P;
+            return res;
+        }
+        else{
+            int res = 0;
+            for(int i = l;i <= r;i += d){
+                res = (res + dp[i]) % P;
+            }
+            return res;
+        }
+    };
+
+    // for(int i = 0;i <= n;i++){
+    //     cerr << slink[i] << " " << pi[i] << endl;
+    // }
 
     dp[0] = 1;
     for(int i = 1;i <= n;i++){
         int p = i;
-        while(p > 0 && pi[slink[p]] >= milen){
-            //cerr << p << " " << slink[p]<< endl;
+        while(a[slink[p]] >= k){ // (slink[p], p]
             int l = i - p, r = i - slink[p], d = diff[p];
-            //cerr << l << " " << r << " " << d << endl;
-            dp[i] = (dp[i] + get(d, l, r)) % P;
-            //cerr << "OK" << endl;
-            p = fail[slink[p]];
-        }
-        if(p > 0 && p >= milen){
-            int d = diff[p], l = i - p, r = i - ((i - milen) / p * p);
-            dp[i] = (dp[i] + get(d, l, r)) % P;
+            dp[i] = (dp[i] + getL(d, l, r)) % P;
+            p = slink[p];
         }
 
-        cerr << dp[i] << " ";
+        if(p > 0 && a[p] >= k){// 
+            int d = diff[p], l = i - p, r = i - p + (a[p] - k) * d;
+            dp[i] = (dp[i] + getLR(d, l, r)) % P;
+        }
 
         for(int j = 1;j <= sq;j++){
             pdp[j][i] = dp[i];
