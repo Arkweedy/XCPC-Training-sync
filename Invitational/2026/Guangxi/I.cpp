@@ -57,39 +57,6 @@ struct KMP
     
 };
 
-vector<int> Zfunc1(const string& t)
-{
-    int n = int(t.size());
-
-    string s;
-    s.reserve(n + 1);
-    s.push_back('#');
-    s += t;
-
-    vector<int> z(n + 1, 0);
-
-    if (n == 0) return z;
-
-    z[1] = n;
-
-    for (int i = 2, l = 1, r = 1; i <= n; i++) {
-        if (i < r) {
-            z[i] = min(r - i, z[i - l + 1]);
-        }
-
-        while (i + z[i] <= n && s[1 + z[i]] == s[i + z[i]]) {
-            z[i]++;
-        }
-
-        if (i + z[i] > r) {
-            l = i;
-            r = i + z[i];
-        }
-    }
-
-    return z;
-}
-
 constexpr int P = 998244353;
 
 void solve()
@@ -102,8 +69,6 @@ void solve()
     auto& pi = kmp.fail;
     auto& slink = kmp.slink;
     auto& diff = kmp.diff;
-    auto& fail = kmp.fail;
-    auto z = Zfunc1(s);
 
     vector<int>a(n + 1);
     for(int i = 1;i <= n;i++){
@@ -128,28 +93,9 @@ void solve()
     for(int i = 0;i <= sq;i++){
         pdp[i][0] = 1;
     }
-    auto getL = [&](int d, int l, int r)->int // [l, r)
-    {
-        //cerr << "add " << l << " " << r << " " << " d = " << d << endl;
-        assert((r - l) % d == 0);
-        if(d <= sq){
-            if(r < d)return 0;
-            if(l < d)return pdp[d][r - d];
-            int res = (pdp[d][r - d] - pdp[d][l - d] + P) % P;
-            return res;
-        }
-        else{
-            int res = 0;
-            for(int i = l;i < r;i += d){
-                res = (res + dp[i]) % P;
-            }
-            return res;
-        }
-    };
 
     auto getLR = [&](int d, int l, int r)->int // [l, r]
     {
-        //cerr << "addLR " << l << " " << r << " " << " d = " << d << endl;
         assert((r - l) % d == 0);
         if(d <= sq){
             if(r < 0)return 0;
@@ -166,21 +112,15 @@ void solve()
         }
     };
 
-    // for(int i = 0;i <= n;i++){
-    //     cerr << slink[i] << " " << pi[i] << endl;
-    // }
-
     dp[0] = 1;
     for(int i = 1;i <= n;i++){
-        int p = i;
-        while(a[slink[p]] >= k){ // (slink[p], p]
-            int l = i - p, r = i - slink[p], d = diff[p];
-            dp[i] = (dp[i] + getL(d, l, r)) % P;
-            p = slink[p];
-        }
-
-        if(p > 0 && a[p] >= k){// 
-            int d = diff[p], l = i - p, r = i - p + (a[p] - k) * d;
+        // on slink list, not strictly increasing
+        // so check all block
+        for(int p = i; p > 0;p = slink[p]){ 
+            if(a[p] < k)continue;
+            int d = diff[p], v = slink[p] + d;
+            int low = v + max(k - a[v], 0) * d;
+            int l = i - p, r = i - low;
             dp[i] = (dp[i] + getLR(d, l, r)) % P;
         }
 
