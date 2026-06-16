@@ -108,3 +108,9 @@ _minted*/
 *~
 *.swp
 *.swo
+
+# 对拍库
+Tools/stress/gen.cpp
+Tools/stress/mycode.cpp
+Tools/stress/std.cpp
+
