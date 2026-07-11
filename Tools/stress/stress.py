@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 import re
+import shlex
 import shutil
 import signal
 import subprocess
@@ -37,6 +38,8 @@ EXE_STD = BUILD_DIR / "std"
 EXE_GEN = BUILD_DIR / "gen"
 
 AC, WA, CE, RE_, TLE, MLE = "AC", "WA", "CE", "RE", "TLE", "MLE"
+DEFAULT_STD = "c++23"
+DEFAULT_CXX_CANDIDATES = ["g++-15", "g++-16", "g++-14", "g++"]
 
 CPP_LINE_PAT = re.compile(r"(?P<file>[^:\s]+\.cpp):(?P<line>\d+)(?::(?P<col>\d+))?")
 
@@ -141,6 +144,34 @@ def progress_step(r: int) -> int:
     if r <= 1000:
         return 10
     return 100
+
+def default_cxx() -> str:
+    env_cxx = os.environ.get("CXX")
+    if env_cxx:
+        return env_cxx
+    for cxx in DEFAULT_CXX_CANDIDATES:
+        if shutil.which(cxx):
+            return cxx
+    return "g++"
+
+def split_cxx(cxx: str) -> List[str]:
+    try:
+        parts = shlex.split(cxx)
+    except ValueError:
+        parts = []
+    return parts if parts else [cxx]
+
+def add_compile_args(parser: argparse.ArgumentParser):
+    parser.add_argument(
+        "--cxx",
+        default=default_cxx(),
+        help="C++ compiler command (default: $CXX or first available g++-15/g++-16/g++-14/g++)",
+    )
+    parser.add_argument(
+        "--std",
+        default=os.environ.get("CXXSTD", DEFAULT_STD),
+        help="C++ standard passed as -std=<value> (default: $CXXSTD or c++23)",
+    )
 
 @dataclass
 class RunResult:
@@ -257,14 +288,14 @@ def run_program(
             except Exception:
                 pass
 
-def compile_cpp(src: Path, out: Path, mode: str, extra: List[str]) -> Tuple[bool, str, List[str]]:
-    flags = ["-std=c++20"]
+def compile_cpp(src: Path, out: Path, mode: str, extra: List[str], cxx: str, std: str) -> Tuple[bool, str, List[str]]:
+    flags = [f"-std={std}"]
     if mode == "debug":
         flags += ["-O0", "-g", "-fno-omit-frame-pointer", "-fsanitize=address,undefined"]
     else:
         flags += ["-O2", "-pipe"]
     flags += extra
-    cmd = ["g++", str(src)] + flags + ["-o", str(out)]
+    cmd = split_cxx(cxx) + [str(src)] + flags + ["-o", str(out)]
     proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     ok = (proc.returncode == 0)
     return ok, proc.stdout, cmd
@@ -397,7 +428,7 @@ def do_cases_clear(yes: bool):
     CASES_DIR.mkdir(parents=True, exist_ok=True)
     print("cleared .stress/cases")
 
-def compile_all(debug: bool, chk: bool, bt: bool) -> Tuple[bool, dict, dict]:
+def compile_all(debug: bool, chk: bool, bt: bool, cxx: str, std: str) -> Tuple[bool, dict, dict]:
     """
     - debug: sanitizer mode (-g -fsanitize=...)
     - chk: mycode uses libstdc++ debug checks (may turn many WA into RE)
@@ -421,19 +452,19 @@ def compile_all(debug: bool, chk: bool, bt: bool) -> Tuple[bool, dict, dict]:
         extra_std += ["-g", "-fno-omit-frame-pointer"]
         extra_my += ["-g", "-fno-omit-frame-pointer"]
 
-    ok, log, cmd = compile_cpp(SRC_GEN, EXE_GEN, gen_mode, [])
+    ok, log, cmd = compile_cpp(SRC_GEN, EXE_GEN, gen_mode, [], cxx, std)
     compile_cmds["gen"] = cmd
     compile_logs["gen"] = log
     if not ok:
         return False, compile_cmds, compile_logs
 
-    ok, log, cmd = compile_cpp(SRC_STD, EXE_STD, std_mode, extra_std)
+    ok, log, cmd = compile_cpp(SRC_STD, EXE_STD, std_mode, extra_std, cxx, std)
     compile_cmds["std"] = cmd
     compile_logs["std"] = log
     if not ok:
         return False, compile_cmds, compile_logs
 
-    ok, log, cmd = compile_cpp(SRC_MY, EXE_MY, my_mode, extra_my)
+    ok, log, cmd = compile_cpp(SRC_MY, EXE_MY, my_mode, extra_my, cxx, std)
     compile_cmds["mycode"] = cmd
     compile_logs["mycode"] = log
     if not ok:
@@ -559,14 +590,14 @@ def diff_outputs_line(std_out: Path, my_out: Path) -> str:
             if len(pre) > 2:
                 pre.pop(0)
 
-def do_run(n: int, tl: float, ml: Optional[int], ml_gen: Optional[int], debug: bool, chk: bool, bt: bool):
+def do_run(n: int, tl: float, ml: Optional[int], ml_gen: Optional[int], debug: bool, chk: bool, bt: bool, cxx: str, std: str):
     ok, msg = ensure_sources_exist()
     if not ok:
         print(msg)
         sys.exit(2)
 
     ensure_dirs()
-    okc, compile_cmds, compile_logs = compile_all(debug, chk, bt)
+    okc, compile_cmds, compile_logs = compile_all(debug, chk, bt, cxx, std)
     if not okc:
         report = f"{CE}: compile failed\n"
         for k, lg in compile_logs.items():
@@ -587,6 +618,7 @@ def do_run(n: int, tl: float, ml: Optional[int], ml_gen: Optional[int], debug: b
         f"compiled OK. mode={'debug' if debug else 'release'}"
         f"{' +chk(mycode)' if chk else ''}"
         f"{' +bt(gdb)' if bt else ''}, "
+        f"cxx={cxx}, std={std}, "
         f"tl={tl}s, ml(std/my)={ml if ml is not None else '∞'}MB, ml(gen)={ml_gen if ml_gen is not None else '∞'}MB"
     )
     print("progress: 1..100 per1, 101..1000 per10, 1001+ per100")
@@ -770,7 +802,7 @@ def do_run(n: int, tl: float, ml: Optional[int], ml_gen: Optional[int], debug: b
     )
     print(colorize(f"All {n} rounds: {AC}", status_color(AC)))
 
-def do_repro(case_dir: Path, tl: float, ml: Optional[int], debug: bool, chk: bool, bt: bool):
+def do_repro(case_dir: Path, tl: float, ml: Optional[int], debug: bool, chk: bool, bt: bool, cxx: str, std: str):
     case_dir = case_dir.resolve()
     if not case_dir.exists():
         print(f"case dir not found: {case_dir}")
@@ -798,7 +830,7 @@ def do_repro(case_dir: Path, tl: float, ml: Optional[int], debug: bool, chk: boo
         extra_std += ["-g", "-fno-omit-frame-pointer"]
         extra_my += ["-g", "-fno-omit-frame-pointer"]
 
-    okc, log, cmd = compile_cpp(SRC_STD, EXE_STD, std_mode, extra_std)
+    okc, log, cmd = compile_cpp(SRC_STD, EXE_STD, std_mode, extra_std, cxx, std)
     compile_cmds["std"] = cmd
     compile_logs["std"] = log
     if not okc:
@@ -806,7 +838,7 @@ def do_repro(case_dir: Path, tl: float, ml: Optional[int], debug: bool, chk: boo
         print(log[-4000:])
         return
 
-    okc, log, cmd = compile_cpp(SRC_MY, EXE_MY, my_mode, extra_my)
+    okc, log, cmd = compile_cpp(SRC_MY, EXE_MY, my_mode, extra_my, cxx, std)
     compile_cmds["mycode"] = cmd
     compile_logs["mycode"] = log
     if not okc:
@@ -877,7 +909,7 @@ def do_repro(case_dir: Path, tl: float, ml: Optional[int], debug: bool, chk: boo
         write_text(case_dir / "repro_report.txt", d)
         print(colorize("saved repro outputs + repro_report.txt into case dir.", "gray"))
 
-def do_cases_retest(tl: float, ml: Optional[int], debug: bool, chk: bool, bt: bool):
+def do_cases_retest(tl: float, ml: Optional[int], debug: bool, chk: bool, bt: bool, cxx: str, std: str):
     ensure_dirs()
     items = sorted([p for p in CASES_DIR.iterdir() if p.is_dir()], key=lambda x: x.name)
     if not items:
@@ -894,12 +926,12 @@ def do_cases_retest(tl: float, ml: Optional[int], debug: bool, chk: bool, bt: bo
         extra_std += ["-g", "-fno-omit-frame-pointer"]
         extra_my += ["-g", "-fno-omit-frame-pointer"]
 
-    okc, log, _ = compile_cpp(SRC_STD, EXE_STD, std_mode, extra_std)
+    okc, log, _ = compile_cpp(SRC_STD, EXE_STD, std_mode, extra_std, cxx, std)
     if not okc:
         print(colorize("CE: compile failed for std", "red"))
         print(log[-4000:])
         return
-    okc, log, _ = compile_cpp(SRC_MY, EXE_MY, my_mode, extra_my)
+    okc, log, _ = compile_cpp(SRC_MY, EXE_MY, my_mode, extra_my, cxx, std)
     if not okc:
         print(colorize("CE: compile failed for mycode", "red"))
         print(log[-4000:])
@@ -960,6 +992,7 @@ def main():
     p_run.add_argument("--debug", action="store_true", help="sanitizer build (-fsanitize=address,undefined -g)")
     p_run.add_argument("--chk", action="store_true", help="mycode with libstdc++ debug checks")
     p_run.add_argument("--bt", action="store_true", help="on signal RE without location, run gdb backtrace")
+    add_compile_args(p_run)
 
     p_repro = sub.add_parser("repro", help="re-run std & mycode on a saved case input.txt")
     p_repro.add_argument("case_dir", type=str)
@@ -968,6 +1001,7 @@ def main():
     p_repro.add_argument("--debug", action="store_true")
     p_repro.add_argument("--chk", action="store_true")
     p_repro.add_argument("--bt", action="store_true")
+    add_compile_args(p_repro)
 
     sub.add_parser("clean", help="clean build/tmp/last, reset case id, keep cases")
 
@@ -982,6 +1016,7 @@ def main():
     p_retest.add_argument("--debug", action="store_true")
     p_retest.add_argument("--chk", action="store_true")
     p_retest.add_argument("--bt", action="store_true")
+    add_compile_args(p_retest)
 
     args = parser.parse_args()
 
@@ -989,10 +1024,10 @@ def main():
         do_clean()
         return
     if args.cmd == "run":
-        do_run(args.n, args.tl, args.ml, args.ml_gen, args.debug, args.chk, args.bt)
+        do_run(args.n, args.tl, args.ml, args.ml_gen, args.debug, args.chk, args.bt, args.cxx, args.std)
         return
     if args.cmd == "repro":
-        do_repro(Path(args.case_dir), args.tl, args.ml, args.debug, args.chk, args.bt)
+        do_repro(Path(args.case_dir), args.tl, args.ml, args.debug, args.chk, args.bt, args.cxx, args.std)
         return
     if args.cmd == "cases":
         if args.action == "list":
@@ -1000,7 +1035,7 @@ def main():
         elif args.action == "clear":
             do_cases_clear(args.yes)
         elif args.action == "retest":
-            do_cases_retest(args.tl, args.ml, args.debug, args.chk, args.bt)
+            do_cases_retest(args.tl, args.ml, args.debug, args.chk, args.bt, args.cxx, args.std)
         return
 
 if __name__ == "__main__":
