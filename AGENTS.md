@@ -1,54 +1,40 @@
 # AGENTS.md — XCPC_Training
 
-这个仓库是 XCPC / ICPC / Codeforces / AtCoder 等算法训练工作区，包含比赛代码、模板、笔记、工具和训练记录。
+这个仓库是 XCPC / ICPC / Codeforces / AtCoder 等算法竞赛的个人训练工作区，包含比赛代码、算法模板、笔记、训练工具和复盘记录。
 
 ## 全仓库原则
 
-- 默认使用中文与用户交流；除非用户要求英文，评审、总结、解释都尽量使用中文。
-- 对历史比赛代码、题解笔记、模板文件保持克制：没有明确要求时，不要批量重构、改名、移动或“清理”。
-- 训练记录、总结、复盘优先使用 Markdown。
-- 竞赛代码示例默认使用 C++。
-- 自动生成内容应与手写题解/代码分离，避免污染原有比赛目录。
+- 默认使用中文与用户交流；除非用户要求英文，评审、总结和解释都尽量使用中文。
+- 处理目标目录时，先读取并遵循离目标文件最近的 `AGENTS.md`；更具体的目录规则优先于本文件。
+- 对历史比赛代码、题解笔记和模板文件保持克制；没有明确要求时，不要批量重构、改名、移动或“清理”。
+- 训练记录、总结和复盘优先使用 Markdown。
+- 竞赛代码及示例默认使用 C++。
+- 自动生成内容应与手写题解、代码分离，避免污染原有比赛目录。
 
-## 口胡训练模块
+## 目录结构
 
-口胡训练模块位于 `Oral_training/`。
+- `Atcoder/`、`Codeforces/`、`HDU/`、`Luogu/`、`NC/`、`Ucup/`：按 OJ 或赛事系列归档的训练与比赛代码。
+- `Invitational/`、`Provincial/`、`Regional/`、`Others/`：邀请赛、省赛、区域赛及其他赛事代码。
+- `Misc/`：暂未归入固定平台或赛事分类的零散训练代码。
+- `Algorithms/`：按算法主题整理的学习代码与少量笔记。
+- `Templates/`：比赛中可复用的算法与数据结构模板。
+- `Notes/`：算法、题目、杂项和 LaTeX 相关笔记。
+- `Tools/`：本地训练辅助工具，包括对拍、数据处理和比赛环境辅助工具。
+- `SPJ/`：特殊判题、数据生成及相关实验代码。
+- `Oral_training/`：口胡训练记录、评审、索引、模板和脚本。
+- `.agents/skills/`：本仓库本地注册的 AI skills。
+- `.codex/`：本仓库的 Codex 项目级配置。
+- `tmp/`：临时工作目录，不作为长期内容归档位置。
+- `.cph-ng/`、`.vscode/`、`.crossnote/`：本地生成或编辑器配置目录，不作为仓库知识资产。
 
-它用于：
+## 模块入口
 
-- 评审一道题的初始口胡/算法想法；
-- 判断正确性、复杂度、证明、实现难度和比赛可写性风险；
-- 将首想法与题解/AC 解法进行 gap analysis；
-- 做周总结、月总结和误判模式分析；
-- 维护按 OJ、算法标签、时间、难度、误判类型的多视角索引。
+### 口胡训练
 
-当用户要求“口胡评审 / 思路评审 / gap analysis / 周总结 / 更新索引”时，优先使用 `.agents/skills/` 下的 skills：
+- 口胡训练的详细规则见 `Oral_training/AGENTS.md`，日常使用说明见 `Oral_training/README.md`。
+- 单题口胡评审、正解差距分析、周总结和索引维护分别使用仓库本地的 `oral-review`、`gap-analysis`、`weekly-summary`、`update-index` skill。
 
-- `oral-review`：单题口胡评审；
-- `gap-analysis`：首想法与题解/AC 解法的差距分析；
-- `weekly-summary`：多条记录的周总结；
-- `update-index`：维护 `Oral_training/views/` 下的生成索引。
+### 对拍工具
 
-## 口胡训练记录安全规则
-
-- 必须保留用户原始口胡，不要直接改写原文，除非用户明确要求。
-- 评审内容应追加到 `## Agent Review`，或保存到 `Oral_training/reviews/`。
-- 如果记录中存在 `locked: true`，没有明确许可不要修改。
-- 模板中未填写的项视为“未知/未提供”，不要因此拒绝评审；应基于已有信息给出 best-effort 反馈，并指出哪些缺失信息最影响判断。
-- 不要把已经看过题解后的结论伪装成 first-look review；若有题解/正解摘要，应使用 `gap-analysis`。
-
-## 推荐工作流
-
-创建新口胡记录：
-
-1. 在根目录运行 `python Oral_training/scripts/new_record.py ...`，生成 `Oral_training/inbox/` 下的草稿。
-2. 用户只需填写最小必填项：题目、口胡思路、薄弱点/疑问。其他项可空。
-3. 使用 `oral-review` skill 评审。
-4. 将评审后的记录归档到 `Oral_training/records/YYYY/YYYY-MM/`。
-5. 需要时更新 `Oral_training/views/` 下的索引。
-
-做周总结：
-
-1. 收集 `Oral_training/records/` 中本周记录。
-2. 总结模式，而不是逐题复述。
-3. 保存到 `Oral_training/summaries/weekly/`。
+- `Tools/stress/` 是 C++ 随机对拍工具目录。
+- 配置、运行、复现或清理对拍环境时，使用仓库本地的 `stress-tool` skill，并遵循 `Tools/stress/AGENTS.md`。
