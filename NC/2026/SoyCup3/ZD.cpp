@@ -90,6 +90,13 @@ void solve()
         a = move(b);
     }
 
+    auto swapcol = [&](int i, int j)->void
+    {
+        for(int k = 0;k < n;k++){
+            swap(a[k][i], a[k][j]);
+        }
+    };
+
     //calc rank ?
     int p = 0;
     for(int i = 0;i < n;i++){
@@ -119,13 +126,13 @@ void solve()
         p++;
     }
 
-    for(int i = 0;i < n;i++){
-        for(int j = 0;j < m;j++){
-            cerr << a[i][j] << " ";
-        }
-        cerr << endl;
-    }
-    cerr << endl;
+    // for(int i = 0;i < n;i++){
+    //     for(int j = 0;j < m;j++){
+    //         cerr << a[i][j] << " ";
+    //     }
+    //     cerr << endl;
+    // }
+    // cerr << endl;
 
     int ans = p;
     cout << ans << endl;
