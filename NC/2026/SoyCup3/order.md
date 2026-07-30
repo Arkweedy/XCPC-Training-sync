@@ -5,3 +5,4 @@
 |medium	| C, H, A, E |
 |medium hard	| K, F |
 |hard |	J, L |
+![alt text](image.png)

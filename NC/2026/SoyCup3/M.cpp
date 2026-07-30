@@ -10,25 +10,33 @@ using namespace std;
 constexpr int M = 26;
 struct trie{
     struct Node{
-        int cnt;
-        int exist;
+        int cur;
         array<int, M>next;
-        Node():cnt(0), exist(0),next{} {}
+        Node():cur(0), next{} {}
     };
 
     vector<Node>t;
+    vector<vector<int>>tid;
+    set<int>st;
+    int tot = 0;
     int ans = 0;
-    int exc = 0;
     int m = 0;
 
     trie(){
         t.emplace_back();
+        tid.emplace_back();
     }
 
     int newNode()
     {
+        tid.emplace_back();
         t.emplace_back();
         return t.size() - 1;
+    }
+
+    void vis(int p)
+    {
+        tid[p].push_back(tot++);
     }
 
     void insert1(string& s)
@@ -41,22 +49,34 @@ struct trie{
                 t[p].next[x] = newNode();
             }
             p = t[p].next[x];
-            t[p].cnt++;
+            vis(p);
         }
         return;
     }
 
-    void add(int p)
+    void vis2(int p)
     {
-        ans++;
-        exc++;
-        t[p].exist = 1;
-    }
-
-    void del(int p)
-    {
-        exc--;
-        t[p].exist = 0;
+        int id = tid[p][t[p].cur];
+        t[p].cur++;
+        if(st.count(id)){
+            st.erase(id);
+            if(t[p].cur < tid[p].size()){
+                st.insert(tid[p][t[p].cur]);
+            }
+        }
+        else{
+            ans++;
+            if(t[p].cur < tid[p].size()){
+                int nid = tid[p][t[p].cur];
+                if(st.size() < m){
+                    st.insert(nid);
+                }
+                else if(*(prev(st.end())) > nid){
+                    st.erase(prev(st.end()));
+                    st.insert(nid);
+                }
+            }
+        }
     }
 
     void insert2(string& s)
@@ -66,15 +86,8 @@ struct trie{
         for(int i = 0;i < n;i++){
             int x = s[i] - 'a';
             p = t[p].next[x];
-            if(!t[p].exist){
-                add(p);
-            }
-            t[p].cnt--;
-            if(t[p].cnt == 0 || exc > m){
-                del(p);
-            }
+            vis2(p);
         }
-        cerr << ans << endl;
     }
 
     void setM(int m_)
@@ -86,6 +99,7 @@ struct trie{
 
 // m = 1
 // a a b b a b b , use 3
+// a b a c c c c c b b b
 
 
 void solve()
