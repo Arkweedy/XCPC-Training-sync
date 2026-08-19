@@ -718,6 +718,7 @@ bitset<N + 1>isprime;
 vector<int>mu;
 vector<int>lpfp;
 vector<int>phi;
+vector<int>me; //Mertens function
 
 void seive()
 {
@@ -725,8 +726,9 @@ void seive()
     mu.resize(N + 1);
     lpfp.resize(N + 1);
     phi.resize(N + 1);
+    me.resize(N + 1);
     isprime[0] = isprime[1] = 0;
-    phi[1] = lpfp[1] = mu[1] = 1;
+    phi[1] = lpfp[1] = mu[1] = me[1] = 1;
     for (int i = 2; i <= N; i++) {
         if (isprime[i]) {
             prime.push_back(i);
@@ -758,16 +760,109 @@ void seive()
             }
         }
     }
+    for(int i = 2;i <= N;i++){
+        me[i] = me[i - 1] + mu[i];
+    }
 }
 
-poly cyc(int n)
+poly Cyclotomic(int n)
 {
-    
+    if(n == 1)return poly{P - 1, 1};
+    int m = phi[n] / 2 + 1;
+    poly a(phi[n] + 1);
+    a[0] = 1;
+    auto mul = [&](int k)->void // *(1 - x^k)
+    {
+        for(int i = m - 1;i >= k;i--){
+            a[i] = a[i] - a[i - k];
+            if(a[i] < 0)a[i] += P;
+        }
+    };
+    auto div = [&](int k)->void // /(1 - x^k) = *(\sum x^ik)
+    {
+        for(int i = k;i < m;i++){
+            a[i] = a[i] + a[i - k];
+            if(a[i] >= P)a[i] -= P;
+        }
+    };
+    for(int i = 1;i * i <= n;i++){
+        if(n % i == 0){
+            if(mu[i] == 1)mul(n / i);
+            else if(mu[i] == -1)div(n / i);
+            if(i * i != n){
+                if(mu[n / i] == 1)mul(i);
+                else if(mu[n / i] == -1)div(i);
+            }
+        }
+    }
+    for(int i = a.size() - 1;i >= m;i--){
+        a[i] = a[phi[n] - i];
+    }
+    return a;
 }
+
+poly CyclotomicProd(int n)
+{
+    // Q = -prod_{j=1}^n Phi_j = prod_{i=1}^n (1-x^i)^{M(n/i)}
+    // log Q = -sum_i M(n/i) * sum_{k>=1} x^(ik) / k
+    int m = 0;
+    for(int i = 1;i <= n;i++){
+        m += phi[i];
+    }
+    poly lpc(m + 1);
+    for(int i = 1;i <= n;i++){
+        for(int k = 1;i * k <= m;k++){
+            lpc[i * k] = (lpc[i * k] - 1ll * me[n / i] * comb.inv(k) % P + P) % P;
+        }
+    }
+    poly pc = -lpc.exp2(m + 1);
+    return pc;
+}
+
+// max N : 573
 
 void solve()
 {
-    
+    int n;
+    cin >> n;
+    poly a(n);
+    for(int i = 0;i < n;i++){
+        cin >> a[i];
+    }
+
+    if(count(a.begin(),a.end(), 0) == n){
+        cout << 0 << endl;
+        return;
+    }
+
+    auto check = [&](int k)->bool
+    {
+        int m = 0;
+        for(int i = 1;i <= k;i++){
+            m += phi[i];
+        }
+        if(m > n)return true;
+        poly pc = CyclotomicProd(k);
+        poly chk = a.mulT(pc);
+        for(int i = 0;i < n - m;i++){
+            if(chk[i] != 0)return false;
+        }
+        return true;
+    };
+
+    constexpr int R = 600;
+    int l = 0, r = R;
+    while(r - l > 1){
+        int m = l + r >> 1;
+        if(check(m)){
+            r = m;
+        }
+        else{
+            l = m;
+        }
+    }
+    cout << r << endl;
+    return;
 }
 
 int main()
@@ -776,7 +871,7 @@ int main()
     std::cin.tie(0);
     seive();
     int tt = 1;
-    cin >> tt;
+    //cin >> tt;
     while(tt--){
         solve();
     }
