@@ -73,7 +73,7 @@ struct SA {
 
     void init_lcp()
     {
-        constexpr int K = 21;//注意根据题目范围调整K大小，不同范围也可以取log计算。
+        int K = __lg(n) + 1;
         st.resize(K, vector<int>(n - 1));
         st[0] = lc;
         for (int j = 0; j < K - 1; j++) {

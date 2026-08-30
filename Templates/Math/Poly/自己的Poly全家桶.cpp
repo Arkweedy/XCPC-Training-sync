@@ -84,37 +84,39 @@ struct Comb {
 } comb;
 
 
-int bsgs(int a, int b, int p)
+int powerF(int a, int b, int d, int p) //power(a + bw, p), w^2 = d, d/p = -1
 {
-    a %= p;
-    b %= p;
-    if(p == 1) return 0;
-    if(b == 1) return 0;
-
-    int sq = ceil(sqrt(p));
-
-    unordered_map<int,int>mp;
-    int x = 1;
-    for(int i = 0;i <= sq;i++){
-        mp[1ll * x * b % p] = i;
-        x = 1ll * x * a % p;
-    }
-
-    int asq = power(a, sq, p);
-    int y = asq;
-    for(int i = 1;i <= sq;i++){
-        if(mp.find(y) != mp.end()){
-            return i * sq - mp[y];
+    int ra = 1, rb = 0;
+    while(p){
+        if(p & 1){
+            int nra = (1ll * a * ra + 1ll * b * rb % P * d) % P;
+            int nrb = (1ll * a * rb + 1ll * b * ra) % P;
+            ra = nra;
+            rb = nrb;
         }
-        y = 1ll * y * asq % p;
+        int na = (1ll * a * a + 1ll * b * b % P * d) % P;
+        int nb = 2ll * a * b % P;
+        a = na;
+        b = nb;
+        p >>= 1;
     }
-    return -1;
+    return ra;
 }
 
-int Fsqrt(int x)
+int Cipolla(int a)
 {
-    int p = bsgs(G, x, P);
-    return power(G, p / 2);
+    if(a == 0)return 0;
+    int ea = power(a, (P - 1) / 2);
+    if(ea == P - 1)return -1;
+    int r, d, ed;
+    mt19937 rng(random_device{}());
+    do{
+        r = rng() % P;
+        d = (1ll * r * r - a + P) % P;
+        ed = power(d, (P - 1) / 2);
+    }while(ed == 1);
+    int x = powerF(r, 1, d, (P + 1) / 2);
+    return x;
 }
 
 constexpr int Q = 23; //998244353 = K 2^Q + 1
@@ -457,7 +459,7 @@ public:
     }
 
     poly sqrt(int m) const {
-        poly x{Fsqrt((*this)[0])};
+        poly x{Cipolla((*this)[0])};
         int k = 1;
         while (k < m) {
             k *= 2;
