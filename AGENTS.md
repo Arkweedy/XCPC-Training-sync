@@ -21,18 +21,12 @@
 - `Notes/`：算法、题目、杂项和 LaTeX 相关笔记。
 - `Tools/`：本地训练辅助工具，包括对拍、数据处理和比赛环境辅助工具。
 - `SPJ/`：特殊判题、数据生成及相关实验代码。
-- `Oral_training/`：口胡训练记录、评审、索引、模板和脚本。
 - `.agents/skills/`：本仓库本地注册的 AI skills。
 - `.codex/`：本仓库的 Codex 项目级配置。
 - `tmp/`：临时工作目录，不作为长期内容归档位置。
 - `.cph-ng/`、`.vscode/`、`.crossnote/`：本地生成或编辑器配置目录，不作为仓库知识资产。
 
 ## 模块入口
-
-### 口胡训练
-
-- 口胡训练的详细规则见 `Oral_training/AGENTS.md`，日常使用说明见 `Oral_training/README.md`。
-- 单题口胡评审、正解差距分析、周总结和索引维护分别使用仓库本地的 `oral-review`、`gap-analysis`、`weekly-summary`、`update-index` skill。
 
 ### 对拍工具
 
