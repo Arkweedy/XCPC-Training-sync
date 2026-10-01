@@ -79,8 +79,7 @@ void solve()
         return;
     };
     dfs(dfs, 0, 1, 1);
-
-    print(ans);cout<<endl;
+    cout << ans <<endl;
     return;
 
 }
