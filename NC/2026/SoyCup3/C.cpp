@@ -30,14 +30,6 @@ i64 inv(i64 a)
 
 void solve()
 {
-    // i64 n, p;
-    // cin >> n >> p;
-    // i64 ans = (n / 2 % P) * ((n / 2 - 1) % P) % P;
-    // if(n % 2 == 1)ans = (ans + n / 2) % P;
-    // if(n * 2 + 1 >= p)ans = (ans - ((p - 1) / 2 - 1) / 2 + P) % P;
-    // cout << ans << endl;
-
-
     i64 n;
     cin >> n >> P;
     int sum = 0;
